@@ -132,7 +132,7 @@ void vecProd()
 }
 void MainWidget::mousePressEvent(QMouseEvent *e)
 {
-    vecProd();
+    //vecProd();
     if (_victory)
         return;
     int x = e->x();
@@ -301,25 +301,11 @@ void MainWidget::initShaders()
     if (!_buttonsProgram.init(":/colorVshader.glsl", ":/colorFshader.glsl"))
         close();
 }
-
-void MainWidget::fillCubeTest()
-{
-    cube->setNcells(8);
-    cube->setCellColor(0,0,1,1);
-    cube->setCellColor(1,0,1,2);
-    cube->setCellColor(2,0,1,3);
-    cube->setCellColor(3,0,1,4);
-    cube->setCellColor(4,0,1,5);
-    cube->setCellColor(5,0,1,6);
-}
-
 QVector3D MainWidget::rotatePoint(const QVector3D& v) const
 {
     QVector3D res1 = projection * matrix * v;
     return res1;
-
 }
-
 QVector3D MainWidget::winToGl(const QVector3D &v)const
 {
     QVector3D res;

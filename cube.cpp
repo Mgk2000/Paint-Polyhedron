@@ -139,7 +139,7 @@ int Cube::nElements() const
 
 int Cube::pick(int nf, float x, float y, int iColor)
 {
-    qDebug() << "Face=" << nf;
+//    qDebug() << "Face=" << nf;
     if (mainWidget->duplicatePending)
     {
         duplicateFace(nf);

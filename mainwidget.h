@@ -124,7 +124,6 @@ private:
     OpenGLProgram _program, _paletteProgram , _buttonsProgram;
     QOpenGLTexture *cubeTexture, *bitmapTextTexture, *buttonsTexture;
 
-    void fillCubeTest();
     QVector2D mousePressPosition;
     QVector3D rotationAxis;
     qreal angularSpeed;
