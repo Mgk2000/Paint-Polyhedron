@@ -1,0 +1,14 @@
+<RCC>
+    <qresource prefix="/">
+        <file>vshader.glsl</file>
+        <file>fshader.glsl</file>
+        <file>images/abcenru.png</file>
+        <file>images/cube768.png</file>
+        <file>images/Buttons.png</file>
+        <file>images/lock-48.png</file>
+        <file>images/Times New Roman,120,-1,5,75,0,0,0,0,0.png</file>
+        <file>staticVshader.glsl</file>
+        <file>staticFshader.glsl</file>
+        <file>colorVshader.glsl</file>
+    </qresource>
+</RCC>
