@@ -1,6 +1,7 @@
 #ifndef POLYHEDRON_H
 #define POLYHEDRON_H
 #include "rotatingfigure.h"
+class Polyhedron;
 struct Vertex
 {
     Vertex(float _x, float _y, float _z);
@@ -12,14 +13,18 @@ struct Edge
 {
     Edge (int indA, int indB);
     int vertices[2];
-    QList <int> neighboredges [2];
+    QList <int> neighborEdges [2];
     int faces[2];
 };
+struct CubeVertexData;
 struct _Face
 {
-    _Face();
+    _Face(Polyhedron* _parent, int indA, int indB, int indC);
+    const QVector3D& vertex(int ind) const;
+    void fillVertexData(CubeVertexData* buf);
     QList <int> vertices;
     ushort color;
+    Polyhedron* parent;
 };
 
 class Polyhedron : public RotatingFigure
@@ -32,14 +37,18 @@ public:
     int pick(float mx, float my, int icolor) override;
     void fillData() override;
     int validColorsCount (RotatingFigure* lf) override;
-    void initGL(QOpenGLShaderProgram* prog);
+    void initGL(QOpenGLShaderProgram* prog) override;
 protected:
     void subdivide();
     void setNcells(int nc);
     QList <Vertex> vertices;
     QList <Edge> edges;
     QList <_Face> faces;
+    int nElements() const;
+    CubeVertexData* vertexData;
     float radius;
+    friend struct _Face;
+    int selIndex;
 };
 
 #endif // POLYHEDRON_H

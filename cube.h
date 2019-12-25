@@ -49,7 +49,7 @@ public:
     void initGL(QOpenGLShaderProgram* prog) override;
     void init() override;
     int ncells;
-    CubeVertexData* vertices;
+    CubeVertexData* vertexData;
     int selIndex;
     Face faces[6];
     void setNcells(int nc);

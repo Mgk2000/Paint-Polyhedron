@@ -12,7 +12,7 @@ QVector3D faceCorners[] =
    QVector3D (1.0,1.0, 1.0), //back right top        6
    QVector3D(-1.0,1.0,1.0)}; //back left top         7
 
-Cube::Cube(MainWidget * mw, bool _little) : RotatingFigure(mw, _little), vertices(nullptr)
+Cube::Cube(MainWidget * mw, bool _little) : RotatingFigure(mw, _little), vertexData(nullptr)
 {
     setNcells(1);
     faces[0].init(0, 2,2,0); //front
@@ -44,12 +44,12 @@ void Cube::fillData()
     buffers[0].bind();
     if (needsFullDraw)
     {
-        buffers[0].allocate(vertices, nElements() * sizeof(CubeVertexData));
+        buffers[0].allocate(vertexData, nElements() * sizeof(CubeVertexData));
         needsFullDraw = false;
     }
     else if (needsCellDraw)
         buffers[0].write(selIndex * sizeof(CubeVertexData),
-                &vertices[selIndex],
+                &vertexData[selIndex],
                 6 * sizeof(CubeVertexData));
     needsCellDraw = false;
 }
@@ -102,16 +102,16 @@ void Cube::setNcells(int nc)
         faces[i].cube = this;
         faces[i].setNcells(nc);
     }
-    if (vertices)
-        delete[] vertices;
-    vertices = new CubeVertexData [6 * 6 *ncells * ncells];
-    fillVertexData(vertices);
+    if (vertexData)
+        delete[] vertexData;
+    vertexData = new CubeVertexData [6 * 6 *ncells * ncells];
+    fillVertexData(vertexData);
 }
 
 void Cube::setCellColor(short nface, short r, short c, short colorInd)
 {
     faces[nface].setCellColor(r,c,colorInd);
-    faces[nface].addCellVertexData(&vertices[ 6* (nface * ncells * ncells + ncells * r + c)],
+    faces[nface].addCellVertexData(&vertexData[ 6* (nface * ncells * ncells + ncells * r + c)],
             mainWidget->colorSquareTexCoords[colorInd], r , c);
 }
 
@@ -280,7 +280,7 @@ void Cube::setData(const uchar *data)
                     int ind = i * ncells * ncells + j* ncells + k;
                     faces[i].setCellColor(j,k,data[ind]);
                 }
-    fillVertexData(vertices);
+    fillVertexData(vertexData);
 }
 
 void Cube::duplicateFace(int nf)
@@ -288,20 +288,20 @@ void Cube::duplicateFace(int nf)
     for (int i =0; i< 6 ; i++)
         if (i != nf)
             faces[i].duplicate(faces[nf], i);
-    fillVertexData(vertices);
+    fillVertexData(vertexData);
 
 }
 
 void Cube::rotateFace(int nf)
 {
     faces[nf].rotate();
-    fillVertexData(vertices);
+    fillVertexData(vertexData);
 }
 
 void Cube::fillFace(int nf, int iColor)
 {
     faces[nf].fillColor(iColor);
-    fillVertexData(vertices);
+    fillVertexData(vertexData);
 }
 
 int Cube::validColorsCount(RotatingFigure *lf)

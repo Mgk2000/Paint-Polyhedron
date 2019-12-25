@@ -12,7 +12,7 @@ void main()
     vec3 lightPos = vec3(0.0, 0.0, 1.0);
     float NL = max(dot(normalize(v_normal), lightPos), 0.0);
     vec3 color = texture2D(texture, v_texcoord).rgb;
-    vec3 col = clamp(color * 0.1 + color * 0.9 * NL, 0.0, 1.0);
+    vec3 col = clamp(color * 0.5 + color * 0.5 * NL, 0.0, 1.0);
     gl_FragColor = vec4(col, 1.0);
 }
 /*

@@ -141,7 +141,7 @@ private:
     float gscale;
     float cubeTop, cubeBottom;
     int pickPoint(int mx, int my);
-    void drawCube();
+    void drawFigure();
     void drawPalette();
     bool event1 (QEvent * event);
     void touchEvent(QTouchEvent *ev);

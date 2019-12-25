@@ -302,6 +302,8 @@ void MainWindow::on_ncellsOkButton_clicked()
     GameStartInfo si(ui->ncellsSpinBox->value(), nullptr,true);
     si.type = ui->typeSpinBox->value();
     si.division = ui->divideSpinBox->value();
+    si.playMusic = false;
+    si.playSounds = false;
     startGame(si);
 }
 bool dataFileLess (const DataFile& df1, const DataFile& df2)

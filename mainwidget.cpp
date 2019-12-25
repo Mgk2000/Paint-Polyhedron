@@ -415,7 +415,7 @@ void MainWidget::paintGL()
     checkValidColors(3);
     cubeTexture->bind();
     program()->bind();
-    drawCube();
+    drawFigure();
     drawPalette();
     _buttonsProgram.shaderProgram()->bind();
     bitmapTextTexture->bind();
@@ -434,7 +434,7 @@ void MainWidget::closeEvent(QCloseEvent *event)
     mainWindow->show();
     hide();
 }
-void MainWidget::drawCube()
+void MainWidget::drawFigure()
 {
     glViewport(cubeViewport.left(),height() -cubeViewport.bottom(),cubeViewport.width(),cubeViewport.height());
    // glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
