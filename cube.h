@@ -42,11 +42,11 @@ struct Face
 class Cube : public RotatingFigure
 {
 public:
-    Cube(MainWidget * mw, bool _init);
+    Cube(MainWidget * mw, bool _little);
     virtual ~Cube();
     void fillData() override;
     void draw() override;
-    void intGL(QOpenGLShaderProgram* prog);
+    void initGL(QOpenGLShaderProgram* prog) override;
     void init() override;
     int ncells;
     CubeVertexData* vertices;

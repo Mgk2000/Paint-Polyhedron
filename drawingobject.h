@@ -13,6 +13,7 @@ class DrawingObject : protected QOpenGLFunctions
 public:
     DrawingObject();
     void initGL(QOpenGLShaderProgram* prog, int _nbuffers);
+    virtual void initGL(QOpenGLShaderProgram* prog) = 0;
     virtual ~DrawingObject();
     virtual void fillData() = 0;
     virtual void draw() = 0;

@@ -84,7 +84,7 @@ void Cube::draw()
 
 }
 
-void Cube::intGL(QOpenGLShaderProgram *prog)
+void Cube::initGL(QOpenGLShaderProgram *prog)
 {
     DrawingObject::initGL(prog,1);
 }

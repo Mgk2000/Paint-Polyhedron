@@ -28,7 +28,7 @@ public:
     BitmapText();
 //    void draw(float x, float y, float scale, const Point4D &color, const char *txt);
 //    void drawCenter(float x, float y, float scale, const Point4D &color, const char *txt);
-    void intGL(QOpenGLShaderProgram* prog);
+    void initGL(QOpenGLShaderProgram* prog) override;
     void fillData() override;
     void draw() override;
     float textWidth(const char* txt);

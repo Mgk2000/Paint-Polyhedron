@@ -72,7 +72,9 @@ class MainWindow;
 struct GameStartInfo
 {
     GameStartInfo(int _ncells, uchar* _data, bool _editor);
-    int ncells;
+    ushort type;
+    ushort division;
+    ushort ncells;
     uchar * data;
     uchar * unfinishedData;
     QFile* currGameFile;

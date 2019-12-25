@@ -18,7 +18,7 @@ class Palette : public DrawingObject,  public QRectF
 public:
     Palette(MainWidget* mw);
     virtual ~Palette() override;
-    void intGL(QOpenGLShaderProgram* prog);
+    void initGL(QOpenGLShaderProgram* prog) override;
     void draw() override;
     void fillData() override;
     bool needsRedraw;

@@ -15,7 +15,7 @@ Palette::~Palette()
 
 }
 
-void Palette::intGL(QOpenGLShaderProgram *prog)
+void Palette::initGL(QOpenGLShaderProgram *prog)
 {
     DrawingObject::initGL(prog,1);
 }

@@ -8,7 +8,7 @@
 #include <QPainter>
 #include <QScroller>
 struct DataFileInfo{
-    ushort w[3];
+    ushort type, division, ncells;
     char c[10];
     char buf[3000];
 };
@@ -218,8 +218,9 @@ void MainWindow::startDataGame(int ind, QString unfinished)
     f.open(QIODevice::ReadOnly);
     DataFileInfo head;
     f.read((char*)&head, f.size());
-    int nc = head.w[2];
-    GameStartInfo si(nc, (uchar*)head.buf, ui->editorCheckBox->isChecked());
+    GameStartInfo si(head.ncells, (uchar*)head.buf, ui->editorCheckBox->isChecked());
+    si.type = head.type;
+    si.division = head.division;
     si.playMusic = settings.playMusic;
     si.playSounds = settings.playSounds;
     if (unfinished != "")
@@ -299,6 +300,8 @@ void MainWindow::on_ncellsOkButton_clicked()
     }
     return;*/
     GameStartInfo si(ui->ncellsSpinBox->value(), nullptr,true);
+    si.type = ui->typeSpinBox->value();
+    si.division = ui->divideSpinBox->value();
     startGame(si);
 }
 bool dataFileLess (const DataFile& df1, const DataFile& df2)

@@ -9,7 +9,7 @@ class Buttons :public QObject, public QRectF, public DrawingObject
 public:
     Buttons();
     bool state[2];
-    void intGL(QOpenGLShaderProgram* prog);
+    void initGL(QOpenGLShaderProgram* prog) override;
 
     void fillData() override;
     void draw() override;

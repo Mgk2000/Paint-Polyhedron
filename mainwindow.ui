@@ -40,7 +40,7 @@
            </property>
           </spacer>
          </item>
-         <item row="0" column="2">
+         <item row="0" column="4">
           <spacer name="horizontalSpacer_2">
            <property name="orientation">
             <enum>Qt::Horizontal</enum>
@@ -53,27 +53,23 @@
            </property>
           </spacer>
          </item>
-         <item row="0" column="4">
+         <item row="0" column="6">
           <widget class="QPushButton" name="ncellsOkButton">
            <property name="text">
             <string>OK</string>
            </property>
           </widget>
          </item>
-         <item row="0" column="5">
-          <spacer name="horizontalSpacer_3">
-           <property name="orientation">
-            <enum>Qt::Horizontal</enum>
-           </property>
-           <property name="sizeHint" stdset="0">
-            <size>
-             <width>40</width>
-             <height>20</height>
-            </size>
-           </property>
-          </spacer>
-         </item>
          <item row="0" column="1">
+          <widget class="QSpinBox" name="typeSpinBox">
+           <property name="font">
+            <font>
+             <pointsize>15</pointsize>
+            </font>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="3">
           <widget class="QSpinBox" name="ncellsSpinBox">
            <property name="font">
             <font>
@@ -88,10 +84,32 @@
            </property>
           </widget>
          </item>
-         <item row="0" column="3">
+         <item row="0" column="5">
           <widget class="QCheckBox" name="editorCheckBox">
            <property name="text">
             <string>CheckBox</string>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="7">
+          <spacer name="horizontalSpacer_3">
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>40</width>
+             <height>20</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+         <item row="0" column="2">
+          <widget class="QSpinBox" name="divideSpinBox">
+           <property name="font">
+            <font>
+             <pointsize>15</pointsize>
+            </font>
            </property>
           </widget>
          </item>

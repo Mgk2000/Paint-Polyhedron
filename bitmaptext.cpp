@@ -174,7 +174,7 @@ BitmapText::BitmapText()
 
 }
 
-void BitmapText::intGL(QOpenGLShaderProgram *prog)
+void BitmapText::initGL(QOpenGLShaderProgram *prog)
 {
     DrawingObject::initGL(prog,1);
 }

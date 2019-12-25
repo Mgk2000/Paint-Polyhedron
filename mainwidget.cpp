@@ -57,6 +57,8 @@
 #include <math.h>
 #include "geometry.h"
 #include "cube.h"
+#include "polyhedron.h"
+#include "octahedron.h"
 #include <QtMath>
 #include <QElapsedTimer>
 #include "mainwindow.h"
@@ -66,7 +68,7 @@ MainWidget::MainWidget(MainWindow *parent, const GameStartInfo & si) :
     angularSpeed(0), gscale(0.5f),
     cubeTop(0.2f), cubeBottom(0.1f), cubeTexture(nullptr), bitmapTextTexture(nullptr), buttonsTexture(nullptr),
     mainWindow (parent),gameStartInfo(si),duplicatePending(false),
-    rotatePending(false),fillFacePending(false)
+    rotatePending(false),fillFacePending(false), figure (nullptr), littleFigure(nullptr)
 
 {
     _palette = new Palette(this);
@@ -230,6 +232,7 @@ void MainWidget::timerEvent(QTimerEvent *)
 }
 void MainWidget::startGame()
 {
+    createFigure();
     _victory = false;
     nTotalColors = gameStartInfo.ncells * gameStartInfo.ncells * 6;
     figure->init();
@@ -286,10 +289,10 @@ void MainWidget::initializeGL()
     initButtonsTexture();
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_CULL_FACE);
-    _palette->intGL(_paletteProgram.shaderProgram());
-    buttons->intGL(_buttonsProgram.shaderProgram());
-    _bitmapText.intGL(_buttonsProgram.shaderProgram());
-    createFigure();
+    _palette->initGL(_paletteProgram.shaderProgram());
+    buttons->initGL(_buttonsProgram.shaderProgram());
+    _bitmapText.initGL(_buttonsProgram.shaderProgram());
+///    createFigure();
     calcViewports();
     _palette->onResize(paletteViewport);
     startGame();
@@ -308,12 +311,29 @@ void MainWidget::initShaders()
 
 void MainWidget::createFigure()
 {
-    Cube * cube = new Cube(this, false);
-    cube->intGL(_program.shaderProgram());
-    Cube* littleCube = new Cube(this, true);
-    littleCube->intGL(_program.shaderProgram());
-    figure = cube;
-    littleFigure = littleCube;
+    if (figure)
+    {
+    delete figure;
+    delete littleFigure;
+    }
+    if (gameStartInfo.type == 0 && gameStartInfo.division ==0)
+    {
+        figure = new Cube(this, false);
+        littleFigure = new Cube(this, true);
+    }
+    else if (gameStartInfo.type == 1)
+    {
+        figure = new Octahedron(this, false);
+        littleFigure = new Octahedron(this, true);
+    }
+    else
+    {
+        figure = new Polyhedron(this, false);
+        littleFigure = new Polyhedron(this, true);
+    }
+    figure->initGL(_program.shaderProgram());
+    littleFigure->initGL(_program.shaderProgram());
+
 }
 QVector3D MainWidget::rotatePoint(const QVector3D& v) const
 {

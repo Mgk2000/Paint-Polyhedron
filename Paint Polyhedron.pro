@@ -12,8 +12,10 @@ SOURCES += main.cpp \
     drawingobject.cpp \
     geometry.cpp \
     mainwindow.cpp \
+    octahedron.cpp \
     openglprogram.cpp \
     palette.cpp \
+    polyhedron.cpp \
     rotatingfigure.cpp \
     saver.cpp \
     soundeffect.cpp
@@ -28,9 +30,11 @@ HEADERS += \
     drawingobject.h \
     geometry.h \
     mainwindow.h \
+    octahedron.h \
     openglprogram.h \
     palette.h \
     mainwidget.h \
+    polyhedron.h \
     rotatingfigure.h \
     soundeffect.h
 

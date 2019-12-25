@@ -5,7 +5,7 @@ Buttons::Buttons() : needsRedraw(true)
     state[0] = state[1] = true;
 }
 
-void Buttons::intGL(QOpenGLShaderProgram *prog)
+void Buttons::initGL(QOpenGLShaderProgram *prog)
 {
     DrawingObject::initGL(prog,1);
 }
