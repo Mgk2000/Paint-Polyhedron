@@ -21,7 +21,7 @@ struct DataFile
 {
     int fileNo;
     int size;
-    int ncells() const {return (int)qSqrt(size/6);}
+    int ncells() const {return (int)qSqrt((size-16)/6);}
 };
 
 class DataFilesModel : public QAbstractTableModel

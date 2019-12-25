@@ -7,6 +7,11 @@
 #include <QMessageBox>
 #include <QPainter>
 #include <QScroller>
+struct DataFileInfo{
+    ushort w[3];
+    char c[10];
+    char buf[3000];
+};
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow), mainWidget(nullptr), _ncols(5)
@@ -211,19 +216,19 @@ void MainWindow::startDataGame(int ind, QString unfinished)
     QString fn = dir.path() + '/' + QString("%1.dat").arg(dataFiles[ind].fileNo);
     QFile f (fn);
     f.open(QIODevice::ReadOnly);
-    uchar* buf = new uchar[f.size()];
-    f.read((char*)buf, f.size());
-    int nc = qSqrt(f.size()/6);
-    GameStartInfo si(nc, buf, ui->editorCheckBox->isChecked());
+    DataFileInfo head;
+    f.read((char*)&head, f.size());
+    int nc = head.w[2];
+    GameStartInfo si(nc, (uchar*)head.buf, ui->editorCheckBox->isChecked());
     si.playMusic = settings.playMusic;
     si.playSounds = settings.playSounds;
     if (unfinished != "")
     {
         currGameFile.setFileName(projectDir + "/settings/" +  unfinished);
         qDebug() << currGameFile.exists() << currGameFile.size() << f.size();
-        if (currGameFile.size() == f.size())
+        if (currGameFile.size() == f.size() - 16)
         {
-        si.unfinishedData = new uchar[f.size()];
+        si.unfinishedData = new uchar[f.size()-16];
         currGameFile.open(QIODevice::ReadWrite);
         currGameFile.read((char*)si.unfinishedData ,currGameFile.size());
         }
@@ -232,10 +237,10 @@ void MainWindow::startDataGame(int ind, QString unfinished)
             currGameFile.close();
             currGameFile.remove();
             currGameFile.open(QIODevice::ReadWrite);
-            char* ubuf = new char [f.size()];
+            char* ubuf = new char [f.size()-16];
             for (int i =0; i< f.size(); i++)
                 ubuf[i] = 0;
-            currGameFile.write(ubuf, f.size());
+            currGameFile.write(ubuf, f.size()-16);
             si.unfinishedData = nullptr;
         }
     }
@@ -243,10 +248,10 @@ void MainWindow::startDataGame(int ind, QString unfinished)
     {
         currGameFile.setFileName(QString("%1.unf").arg(dataFiles[ind].fileNo));
         currGameFile.open(QIODevice::ReadWrite);
-        char* ubuf = new char [f.size()];
+        char* ubuf = new char [f.size()-16];
         for (int i =0; i< f.size(); i++)
             ubuf[i] = 0;
-        currGameFile.write(ubuf, f.size());
+        currGameFile.write(ubuf, f.size()-16);
         si.unfinishedData = nullptr;
     }
     si.currGameFile = &currGameFile;
@@ -270,6 +275,29 @@ void MainWindow::startGame(GameStartInfo& si)
 
 void MainWindow::on_ncellsOkButton_clicked()
 {
+ /*DataFileInfo head;
+    for (int i=0; i<10; i++)
+        head.c[i] = 'X';
+    QString sdir("c:/Projects/Qt/Paint Polyhedron/shapes");
+    QDir dir (sdir);
+    if (!dir.exists())
+        return;
+    QStringList fnames = dir.entryList(QStringList() << "*.dat" ,QDir::Files);
+    head.w[0] = head.w[1] = 0;
+    for (int i =0 ; i<fnames.length(); i++)
+    {
+        QFile f (sdir + "/" + fnames[i]);
+        if (!f.exists())
+            return;
+        if (!f.open(QIODevice::ReadWrite))
+            return;
+        f.read(head.buf, f.size());
+        int nc = qSqrt(f.size()/6);
+        head.w[2] = nc;
+        f.seek(0);
+        f.write((char*)&head, f.size()+16);
+    }
+    return;*/
     GameStartInfo si(ui->ncellsSpinBox->value(), nullptr,true);
     startGame(si);
 }

@@ -246,7 +246,7 @@ void MainWidget::startGame()
             figure->setData(gameStartInfo.unfinishedData);
             delete[] gameStartInfo.unfinishedData;
         }
-        delete[] gameStartInfo.data;
+        //delete[] gameStartInfo.data;
     }
     nValidColors = figure->validColorsCount(littleFigure);
     //checkValidColors(2);
