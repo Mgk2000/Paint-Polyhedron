@@ -7,6 +7,7 @@
 #include "cube.h"
 void MainWidget::saveGame()
 {
+    Cube * cube = (Cube*) figure;
     saveTimer.stop();
     QDir dir(mainWindow->projectDir + "/shapes");
     if (!dir.exists())
@@ -38,19 +39,6 @@ void MainWidget::saveGame()
    shapeFile.close();
    saveCubeSnap(fn + ".png");
 }
-
-void MainWidget::saveMove(int face, int row, int col, uchar colorInd)
-{
-   if (gameStartInfo.editor)
-       return;
-    int ind = face * cube->ncells * cube->ncells + row  * cube->ncells + col;
-    gameStartInfo.currGameFile->seek(ind);
-    char color = colorInd;
-    gameStartInfo.currGameFile->write(&color,1);
-//    QFileInfo fi (*gameStartInfo.currGameFile);
-//    qDebug() << fi.absoluteFilePath() << fi.size();
-    //    gameStartInfo.unfinishedData[ind] = colorInd;
-         }
 
 void MainWidget::saveCubeSnap(const QString& fn )
 {

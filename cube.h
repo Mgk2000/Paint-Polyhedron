@@ -4,7 +4,7 @@
 #include <QVector3D>
 #include <QVector>
 #include "mainwidget.h"
-#include "drawingobject.h"
+#include "rotatingfigure.h"
 
 struct Cell
 {
@@ -39,7 +39,7 @@ struct Face
     Cube * cube;
 };
 
-class Cube : public DrawingObject
+class Cube : public RotatingFigure
 {
 public:
     Cube(MainWidget * mw, bool _init);
@@ -47,29 +47,32 @@ public:
     void fillData() override;
     void draw() override;
     void intGL(QOpenGLShaderProgram* prog);
+    void init() override;
     int ncells;
-    QVector2D texCoords[7];
     CubeVertexData* vertices;
     int selIndex;
     Face faces[6];
     void setNcells(int nc);
     void setCellColor(short face, short r, short c, short colorInd);
     void fillVertexData(CubeVertexData* buf);
-    void getCorners(QVector3D* _corners);
+    void getCorners();
     int nElements() const;
+    int pick(float mx, float my, int icolor) override;
+
     int pick(int nf, float x, float y, int icolor);
     void rowColFromXY (int nf, float x, float y, int* r, int* c);
-    bool needsCellDraw;
-    void setData(const uchar* data);
-    bool little;
+    void setData(const uchar* data) override;
     void duplicateFace (int nf);
     void rotateFace (int nf);
     void fillFace(int nf, int iColor);
-    MainWidget* mainWidget;
-    bool needsFullDraw;
+    int validColorsCount (RotatingFigure* lf) override;
 protected:
-  friend class Face;
-  friend class Cell;
+private:
+    QVector3D faceCorners[6][4];
+    void saveMove(int face, int row, int col, uchar colorInd);
+
+  friend struct Face;
+  friend struct Cell;
 };
 
 #endif // CUBE_H

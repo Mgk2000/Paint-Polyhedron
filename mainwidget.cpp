@@ -69,12 +69,21 @@ MainWidget::MainWidget(MainWindow *parent, const GameStartInfo & si) :
     rotatePending(false),fillFacePending(false)
 
 {
+    _palette = new Palette(this);
     buttons = new Buttons();
 //    gameStartInfo = si;
     this->resize(480,800);
     QSurfaceFormat format;
         format.setSamples(16);
     this->setFormat(format);
+    colorSquareTexCoords[0] = QVector2D(0.0, 0.0);        //gray
+    colorSquareTexCoords[1] = QVector2D(0.0, 0.6667f);     //white
+    colorSquareTexCoords[2] = QVector2D(0.3333f, 0.6667f);  //yellow
+    colorSquareTexCoords[3] = QVector2D(0.6667f, 0.6667f);  //red
+    colorSquareTexCoords[4] = QVector2D(0.0f, 0.3333f);       //orange
+    colorSquareTexCoords[5] = QVector2D(0.3333f, 0.3333f);       //blue
+    colorSquareTexCoords[6] = QVector2D(0.6667f, 0.3333f);       //green
+
     setAttribute(Qt::WA_AcceptTouchEvents, true);
     connect(buttons,SIGNAL(musicButtonPressed()), this, SLOT(playMusicChanged()));
     prepareSounds();
@@ -91,8 +100,8 @@ MainWidget::~MainWidget()
     delete cubeTexture;
     delete bitmapTextTexture;
     delete buttonsTexture;
-    delete cube;
-    delete littleCube;
+    delete figure;
+    delete littleFigure;
     doneCurrent();
 }
 
@@ -139,7 +148,7 @@ void MainWidget::mousePressEvent(QMouseEvent *e)
     int y = e->y();
     mousePressPosition = QVector2D(-1,-1);
 //     qDebug() << "xy=" << x << y;
-    if (_palette.mouseClick(x, y))
+    if (_palette->mouseClick(x, y))
     {
         update();
         return;
@@ -203,7 +212,7 @@ void MainWidget::timerEvent(QTimerEvent *)
     {
         if (angularSpeed < 0.01)
             angularSpeed = 0.0;
-        if (cube->needsCellDraw || cube->needsFullDraw || _palette.needsRedraw || angularSpeed>0)
+        if (figure->needsCellDraw || figure->needsFullDraw || _palette->needsRedraw || angularSpeed>0)
             needsUpdate = true;
     }
     if (needsUpdate)
@@ -223,25 +232,25 @@ void MainWidget::startGame()
 {
     _victory = false;
     nTotalColors = gameStartInfo.ncells * gameStartInfo.ncells * 6;
-    cube->setNcells(gameStartInfo.ncells);
-    cube->needsFullDraw = true;
-    littleCube->setNcells(gameStartInfo.ncells);
-    littleCube->needsFullDraw = true;
+    figure->init();
+    figure->needsFullDraw = true;
+    littleFigure->init();
+    littleFigure->needsFullDraw = true;
     if (gameStartInfo.data)
     {
-        littleCube->setData(gameStartInfo.data);
+        littleFigure->setData(gameStartInfo.data);
         if (gameStartInfo.editor)
-            cube->setData(gameStartInfo.data);
+            figure->setData(gameStartInfo.data);
         else if (gameStartInfo.unfinishedData)
         {
-            cube->setData(gameStartInfo.unfinishedData);
+            figure->setData(gameStartInfo.unfinishedData);
             delete[] gameStartInfo.unfinishedData;
         }
         delete[] gameStartInfo.data;
     }
-    nValidColors = nValidColorsCount();
+    nValidColors = figure->validColorsCount(littleFigure);
     //checkValidColors(2);
-    _palette.fillData();
+    _palette->fillData();
     rotationAxis =  QVector3D(-0.7f,0.7f ,0);
     angularSpeed = 1.0f;
     buttons->setMusic (gameStartInfo.playMusic);
@@ -277,17 +286,12 @@ void MainWidget::initializeGL()
     initButtonsTexture();
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_CULL_FACE);
-    cube = new Cube(this, false);
-    cube->intGL(_program.shaderProgram());
-    _palette.intGL(_paletteProgram.shaderProgram());
-    _palette.cube = cube;
+    _palette->intGL(_paletteProgram.shaderProgram());
     buttons->intGL(_buttonsProgram.shaderProgram());
     _bitmapText.intGL(_buttonsProgram.shaderProgram());
-    littleCube = new Cube(this, true);
-    littleCube->intGL(_program.shaderProgram());
-    getFaceCorners();
+    createFigure();
     calcViewports();
-    _palette.onResize(paletteViewport);
+    _palette->onResize(paletteViewport);
     startGame();
 }
 
@@ -300,6 +304,16 @@ void MainWidget::initShaders()
         close();
     if (!_buttonsProgram.init(":/colorVshader.glsl", ":/colorFshader.glsl"))
         close();
+}
+
+void MainWidget::createFigure()
+{
+    Cube * cube = new Cube(this, false);
+    cube->intGL(_program.shaderProgram());
+    Cube* littleCube = new Cube(this, true);
+    littleCube->intGL(_program.shaderProgram());
+    figure = cube;
+    littleFigure = littleCube;
 }
 QVector3D MainWidget::rotatePoint(const QVector3D& v) const
 {
@@ -355,80 +369,17 @@ void MainWidget::calcViewports()
     littleCubeViewport.setRect(0,0, w/3.7,w/3.7);
     float pw = width() * 0.333 * 2;
     paletteViewport.setRect(width() -pw, 0, pw , pw* 0.4);
-    _palette.onResize(paletteViewport);
+    _palette->onResize(paletteViewport);
     textViewport.setRect(w/20, w/4, width()*0.7, width()*0.07);
     pw = width() /10.0f;
     buttonsViewport.setRect(textViewport.right(), textViewport.top(), pw*2,  pw);
     buttons->onResize(buttonsViewport);
     //buttonsViewport = textViewport;
 }
-void MainWidget::getFaceCorners()
-{
-    cube->getCorners(&faceCorners[0][0]);
-}
-
 int MainWidget::pickPoint(int mx, int my)
 {
-    //qDebug() << "mv=" << mv.x() << mv.y() << "corner=" << corners[2].x() << corners[2].y();
-    QVector3D corners[4], saveCorners[4];
-    bool saved = false;
-    float saveZ;
-    bool pinside = false;
-    QVector3D res1, saveRes1;
-    int saveFace;
-    for (int i =0; i< 6; i++)
-    {
-        corners[0] = rotatePoint(faceCorners[i][0]);
-        corners[1] = rotatePoint(faceCorners[i][1]);
-        corners[2] = rotatePoint(faceCorners[i][2]);
-        corners[3] = rotatePoint(faceCorners[i][3]);
-        QVector3D mv = winToGl(QVector3D(mx, my, 0));
-        pointInParallelogram(corners[0], corners[1],corners[2], corners[3],mv, res1, &pinside);
-        if (pinside)
-        {
-            if (!saved)
-            {
-                saveZ = 0;
-                for (int j=0; j<4; j++)
-                {
-                   saveCorners[j] = corners[j];
-                   saveZ = saveZ + corners[j].z();
-                }
-                saveRes1 = res1;
-                saveFace = i;
-                saved = true;
-            }
-            else
-            {
-                float newZ = 0;
-                for (int j=0; j<4; j++)
-                    newZ = newZ + corners[j].z();
-                    if (newZ < saveZ)
-                    {
-//                        qDebug() << "mv=" << mv.x() << mv.y() <<
-//                            "face" << i << "< saveFace" << saveFace << " corner=" <<
-//                                corners[2].x() << corners[2].y();
-//                            qDebug() << "cubeFace XY" << res1.x() << res1.y()<<
-//                                        qFloor(res1.x() * cube->ncells) << qFloor(res1.y()* cube->ncells);
-                         int p =cube->pick(i, res1.x(), res1.y(), _palette.selColor);
-                         update();
-                         return p;
-                     }
-                     else /*if (corners[j].z() > saveCorners[k].z() +0.1)*/
-                     {
-//                            qDebug() << "mv=" << mv.x() << mv.y() <<
-//                            "saveFace" << saveFace << "<face" << i << " corner=" <<
-//                                saveCorners[2].x() << saveCorners[2].y();
-//                            qDebug() << "cubeFace XY" << saveRes1.x() << saveRes1.y() <<
-//                                        qFloor(saveRes1.x() * cube->ncells) << qFloor(saveRes1.y()* cube->ncells);
-                            int p = cube->pick(saveFace, saveRes1.x(), saveRes1.y(), _palette.selColor);
-                            update();
-                            return p;
-                      }
-            }
-        }
-    }
-    return 0;
+    QVector3D mv = winToGl(QVector3D(mx, my, 0));
+    return figure->pick(mv.x(), mv.y(), _palette->selColor);
 }
 void MainWidget::resizeGL(int w, int h)
 {
@@ -477,16 +428,16 @@ void MainWidget::drawCube()
     program()->setUniformValue(m_normalMatrixLoc, normalMatrix);
 
 
-    cube->draw();
+    figure->draw();
     glViewport(littleCubeViewport.left(),height() -littleCubeViewport.bottom(),
                littleCubeViewport.width(),littleCubeViewport.height());
-    littleCube->draw();
+    littleFigure->draw();
 }
 void MainWidget::drawPalette()
 {
     glViewport(paletteViewport.left(),height() -paletteViewport.bottom(),
                paletteViewport.width(),paletteViewport.height());
-    _palette.draw();
+    _palette->draw();
 }
 void MainWidget::drawBitmapText()
 {
@@ -642,21 +593,10 @@ void MainWidget::rotateFace()
     rotatePending = true;
 }
 
-int MainWidget::nValidColorsCount() const
-{
-    int vc =0;
-    for (int i=0; i< 6; i ++)
-        for (int j =0; j< cube->ncells; j++)
-            for (int k =0; k< cube->ncells; k++)
-                if (cube->faces[i].cells[j][k].colorInd == littleCube->faces[i].cells[j][k].colorInd)
-                    vc ++;
-    return vc;
-}
-
 void MainWidget::checkValidColors(int where)
 {
     return;
-    int vc = nValidColorsCount();
+    int vc = figure->validColorsCount(littleFigure);
     if (vc!= nValidColors)
         qDebug() << "checkValidColors error where=" << where << " vc=" << vc << " nValidColors=" << nValidColors;
     nValidColors = vc;

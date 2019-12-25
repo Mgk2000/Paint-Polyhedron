@@ -65,7 +65,7 @@ int main(int argc, char *argv[])
     format.setDepthBufferSize(24);
     QSurfaceFormat::setDefaultFormat(format);
 
-    app.setApplicationName("PaintCube");
+    app.setApplicationName("Paint Polyhedron");
     app.setApplicationVersion("0.1");
     MainWindow mainWin;
     mainWin.connect (&app, SIGNAL(applicationStateChanged(Qt::ApplicationState )), &mainWin,

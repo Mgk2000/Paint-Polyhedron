@@ -186,7 +186,7 @@ void MainWindow::getProjectDir()
     QString exedir = QDir(".").absolutePath();
     QDir dir("shapes");
     if (!dir.exists())
-        dir.setPath("../PaintCube");
+        dir.setPath("../Paint Polyhedron");
     bool b = dir.exists();
     projectDir = dir.absolutePath();
     qDebug() << "projectDir=" << projectDir;

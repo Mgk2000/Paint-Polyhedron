@@ -1,4 +1,5 @@
 #include "cube.h"
+#include "geometry.h"
 #include <QtMath>
 QVector3D faceCorners[] =
 {  QVector3D(-1.0,-1.0,-1.0),  // front left bottom  0
@@ -11,10 +12,8 @@ QVector3D faceCorners[] =
    QVector3D (1.0,1.0, 1.0), //back right top        6
    QVector3D(-1.0,1.0,1.0)}; //back left top         7
 
-Cube::Cube(MainWidget * mw,bool _init) : vertices(nullptr),
-    needsCellDraw(false), mainWidget(mw), needsFullDraw(true)
+Cube::Cube(MainWidget * mw, bool _little) : RotatingFigure(mw, _little), vertices(nullptr)
 {
-    little = false;
     setNcells(1);
     faces[0].init(0, 2,2,0); //front
     faces[1].init(5, -2,2,0); //back
@@ -22,17 +21,8 @@ Cube::Cube(MainWidget * mw,bool _init) : vertices(nullptr),
     faces[3].init(5, 0, 2, -2); //right
     faces[4].init(4,2 ,0 ,-2);  // bottom
     faces[5].init(3,2,0 ,2); //top
-
-    texCoords[0] = QVector2D(0.0, 0.0);        //gray
-    texCoords[1] = QVector2D(0.0, 0.6667f);     //white
-    texCoords[2] = QVector2D(0.3333f, 0.6667f);  //yellow
-    texCoords[3] = QVector2D(0.6667f, 0.6667f);  //red
-    texCoords[4] = QVector2D(0.0f, 0.3333f);       //orange
-    texCoords[5] = QVector2D(0.3333f, 0.3333f);       //blue
-    texCoords[6] = QVector2D(0.6667f, 0.3333f);       //green
-    if (_init) //i.e littleCube - draw it faces
+    if (_little) //i.e littleCube - draw it faces
     {
-        little =true;
         setCellColor(0,0,0,1);
         setCellColor(1,0,0,2);
         setCellColor(2,0,0,3);
@@ -40,6 +30,8 @@ Cube::Cube(MainWidget * mw,bool _init) : vertices(nullptr),
         setCellColor(4,0,0,5);
         setCellColor(5,0,0,6);
     }
+    else
+        getCorners();
 }
 
 Cube::~Cube()
@@ -97,6 +89,11 @@ void Cube::intGL(QOpenGLShaderProgram *prog)
     DrawingObject::initGL(prog,1);
 }
 
+void Cube::init()
+{
+    setNcells(mainWidget->gameStartInfo.ncells);
+}
+
 void Cube::setNcells(int nc)
 {
     ncells = nc;
@@ -115,25 +112,88 @@ void Cube::setCellColor(short nface, short r, short c, short colorInd)
 {
     faces[nface].setCellColor(r,c,colorInd);
     faces[nface].addCellVertexData(&vertices[ 6* (nface * ncells * ncells + ncells * r + c)],
-            texCoords[colorInd], r , c);
+            mainWidget->colorSquareTexCoords[colorInd], r , c);
 }
 
 void Cube::fillVertexData(CubeVertexData *buf)
 {
     for (int i = 0; i<6; i++)
-        faces[i].fillVertexData(buf + i*ncells*ncells*6, texCoords);
+        faces[i].fillVertexData(buf + i*ncells*ncells*6, mainWidget->colorSquareTexCoords);
 }
 
-void Cube::getCorners(QVector3D *_corners)
+void Cube::getCorners()
 {
     for (int i=0; i< 6; i++)
-        faces[i].getCorners(&_corners[i*4],&_corners[i*4 +1],
-                &_corners[i*4 +2],&_corners[i*4+3]);
+        faces[i].getCorners(&faceCorners[i][0],&faceCorners[i][1],
+                &faceCorners[i][2],&faceCorners[i][3]);
 }
 
 int Cube::nElements() const
 {
     return ncells* ncells * 6 * 6;
+
+}
+int Cube::pick(float mx, float my, int icolor)
+{
+    QVector3D corners[4], saveCorners[4];
+    bool saved = false;
+    float saveZ;
+    bool pinside = false;
+    QVector3D res1, saveRes1;
+    int saveFace;
+    for (int i =0; i< 6; i++)
+    {
+        corners[0] = rotatePoint(faceCorners[i][0]);
+        corners[1] = rotatePoint(faceCorners[i][1]);
+        corners[2] = rotatePoint(faceCorners[i][2]);
+        corners[3] = rotatePoint(faceCorners[i][3]);
+        QVector3D mv (mx, my, 0);
+        pointInParallelogram(corners[0], corners[1],corners[2], corners[3],mv, res1, &pinside);
+        if (pinside)
+        {
+            if (!saved)
+            {
+                saveZ = 0;
+                for (int j=0; j<4; j++)
+                {
+                   saveCorners[j] = corners[j];
+                   saveZ = saveZ + corners[j].z();
+                }
+                saveRes1 = res1;
+                saveFace = i;
+                saved = true;
+            }
+            else
+            {
+                float newZ = 0;
+                for (int j=0; j<4; j++)
+                    newZ = newZ + corners[j].z();
+                    if (newZ < saveZ)
+                    {
+//                        qDebug() << "mv=" << mv.x() << mv.y() <<
+//                            "face" << i << "< saveFace" << saveFace << " corner=" <<
+//                                corners[2].x() << corners[2].y();
+//                            qDebug() << "cubeFace XY" << res1.x() << res1.y()<<
+//                                        qFloor(res1.x() * cube->ncells) << qFloor(res1.y()* cube->ncells);
+                         int p =pick(i, res1.x(), res1.y(), icolor);
+                         needsCellDraw = true;
+                         return p;
+                     }
+                     else /*if (corners[j].z() > saveCorners[k].z() +0.1)*/
+                     {
+//                            qDebug() << "mv=" << mv.x() << mv.y() <<
+//                            "saveFace" << saveFace << "<face" << i << " corner=" <<
+//                                saveCorners[2].x() << saveCorners[2].y();
+//                            qDebug() << "cubeFace XY" << saveRes1.x() << saveRes1.y() <<
+//                                        qFloor(saveRes1.x() * cube->ncells) << qFloor(saveRes1.y()* cube->ncells);
+                            int p = pick(saveFace, saveRes1.x(), saveRes1.y(), icolor);
+                            needsCellDraw = true;
+                            return p;
+                      }
+            }
+        }
+    }
+    return 0;
 
 }
 
@@ -168,7 +228,7 @@ int Cube::pick(int nf, float x, float y, int iColor)
     rowColFromXY(nf,x,y, & row, &col);
    // qDebug() << "pick row,col = " << row <<col;
     int oldColor = faces[nf].cells[row][col].colorInd;
-    int trueColor = mainWidget->littleCube->faces[nf].cells[row][col].colorInd;
+    int trueColor = ((Cube*)mainWidget->littleFigure)->faces[nf].cells[row][col].colorInd;
     int ret =0;
     if (iColor != trueColor)
     {
@@ -187,7 +247,7 @@ int Cube::pick(int nf, float x, float y, int iColor)
         }
     }
     setCellColor(nf, row,col, iColor);
-    mainWidget->saveMove(nf, row,col, iColor);
+    saveMove(nf, row,col, iColor);
     selIndex = (nf * ncells  * ncells + row * ncells +col) * 6;
     if (iColor != oldColor)
       needsCellDraw = true;
@@ -242,6 +302,33 @@ void Cube::fillFace(int nf, int iColor)
 {
     faces[nf].fillColor(iColor);
     fillVertexData(vertices);
+}
+
+int Cube::validColorsCount(RotatingFigure *lf)
+{
+    Cube* littleCube = (Cube*) lf;
+    int vc =0;
+    for (int i=0; i< 6; i ++)
+        for (int j =0; j< ncells; j++)
+            for (int k =0; k< ncells; k++)
+                if (faces[i].cells[j][k].colorInd == littleCube->faces[i].cells[j][k].colorInd)
+                    vc ++;
+    return vc;
+
+}
+
+void Cube::saveMove(int face, int row, int col, uchar colorInd)
+{
+    if (mainWidget->gameStartInfo.editor)
+        return;
+     int ind = face * ncells * ncells + row  * ncells + col;
+     mainWidget->gameStartInfo.currGameFile->seek(ind);
+     char color = colorInd;
+     mainWidget->gameStartInfo.currGameFile->write(&color,1);
+ //    QFileInfo fi (*gameStartInfo.currGameFile);
+ //    qDebug() << fi.absoluteFilePath() << fi.size();
+     //    gameStartInfo.unfinishedData[ind] = colorInd;
+
 }
 
 Cell::Cell()

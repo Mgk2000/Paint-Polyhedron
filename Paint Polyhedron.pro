@@ -2,7 +2,7 @@ QT       += core gui widgets opengl multimedia
 CONFIG     += debug
 
 CONFIG += qt warn_on rtti exceptions
-TARGET = PaintCube
+TARGET = Paint Polyhedron
 TEMPLATE = app
 # LIBS    += -lqjson
 SOURCES += main.cpp \
@@ -14,6 +14,7 @@ SOURCES += main.cpp \
     mainwindow.cpp \
     openglprogram.cpp \
     palette.cpp \
+    rotatingfigure.cpp \
     saver.cpp \
     soundeffect.cpp
 
@@ -30,6 +31,7 @@ HEADERS += \
     openglprogram.h \
     palette.h \
     mainwidget.h \
+    rotatingfigure.h \
     soundeffect.h
 
 RESOURCES += \

@@ -66,7 +66,8 @@
 #include "soundeffect.h"
 #include "buttons.h"
 #include <QTouchEvent>
-class Cube;
+class RotatingFigure;
+//class Cube;
 class MainWindow;
 struct GameStartInfo
 {
@@ -90,21 +91,22 @@ public:
     virtual void show();
     void showEvent(QShowEvent *event);
     QMatrix4x4 projection;
-    const Palette* getPalette() const {return & _palette;}
     BitmapText* getBitmapText()  {return & _bitmapText;}
     Buttons* getButtons()  {return  buttons;}
     GameStartInfo gameStartInfo;
     bool isEditMode() const {return gameStartInfo.editor;}
     void startGame();
     void sound(int is);
-    Cube * cube, *littleCube;
+    //Cube * cube, *littleCube;
+    RotatingFigure * figure, *littleFigure;
     bool duplicatePending, rotatePending, fillFacePending;
     QTimer saveTimer;
     bool isMusicPlaying() const;
     bool isSoundsPlaying() const;
-    void saveMove(int face, int row, int col, uchar colorInd);
     SoundEffect soundEffect, music;
-
+    QVector3D rotatePoint(const QVector3D &v) const;
+    QVector3D winToGl(const QVector3D &v) const;
+    QVector2D colorSquareTexCoords[7];
 protected:
     void mousePressEvent(QMouseEvent *e) override;
     void mouseReleaseEvent(QMouseEvent *e) override;
@@ -116,8 +118,9 @@ protected:
     virtual void  closeEvent(QCloseEvent *event) override;
     void initShaders();
 private:
+    void createFigure();
     QMatrix4x4 matrix;
-    Palette _palette;
+    Palette* _palette;
     BitmapText _bitmapText;
     QBasicTimer timer;
     QOpenGLShaderProgram* program() {return _program.shaderProgram();}
@@ -128,8 +131,6 @@ private:
     QVector3D rotationAxis;
     qreal angularSpeed;
     QQuaternion rotation;
-    QVector3D rotatePoint(const QVector3D &v) const;
-    QVector3D winToGl(const QVector3D &v) const;
     QVector3D winFromGl(const QVector3D &v, int w, float scale) const;
     void calcViewports();
     QRect cubeViewport, littleCubeViewport;
@@ -137,8 +138,6 @@ private:
     QRect textViewport, buttonsViewport;
     float gscale;
     float cubeTop, cubeBottom;
-    void getFaceCorners();
-    QVector3D faceCorners[6][4];
     int pickPoint(int mx, int my);
     void drawCube();
     void drawPalette();
@@ -161,7 +160,6 @@ private:
     void saveAll();
     void duplicateFace();
     void rotateFace();
-    int nValidColorsCount() const;
     void checkValidColors(int where);
     void prepareSounds();
     Buttons *buttons;

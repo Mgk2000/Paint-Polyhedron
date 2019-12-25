@@ -4,6 +4,7 @@
 #include <QVector4D>
 #include "drawingobject.h"
 struct VertexData;
+class MainWidget;
 class QOpenGLTexture;
 class Cube;
 class Button : public QRectF
@@ -15,7 +16,7 @@ public:
 class Palette : public DrawingObject,  public QRectF
 {
 public:
-    Palette();
+    Palette(MainWidget* mw);
     virtual ~Palette() override;
     void intGL(QOpenGLShaderProgram* prog);
     void draw() override;
@@ -36,9 +37,9 @@ public:
     int selColor;
     bool mouseClick(int mx, int my);
     int dw;
-    Cube * cube;
 private:
     QOpenGLTexture * texture;
+    MainWidget * mainWidget;
 
 };
 

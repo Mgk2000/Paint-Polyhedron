@@ -1,7 +1,8 @@
 #include "palette.h"
 #include "cube.h"
-Palette::Palette() : DrawingObject() ,
-    needsRedraw(false), selColor(0), dw(3)
+#include "mainwidget.h"
+Palette::Palette(MainWidget* mw) : DrawingObject() ,
+    needsRedraw(false), selColor(0), dw(3), mainWidget(mw)
 {
     extern  QVector4D gameColors[];
     for (int i =0; i<6; i++)
@@ -77,13 +78,13 @@ void Palette::addRectData(const QRectF &r, const QVector2D texCoords,  VertexDat
 void Palette::fillVertexData(VertexData* buf)
 {
     int bufind =0;
-    addRectData(QRectF(-1.0, -1.0, 0.75, 2.0), cube->texCoords[selColor],&(buf[bufind]));
+    addRectData(QRectF(-1.0, -1.0, 0.75, 2.0), mainWidget->colorSquareTexCoords[selColor],&(buf[bufind]));
     bufind +=6;
     for (int i =0; i< 2; i++)
         for (int j =0; j< 3; j++)
     {
        addRectData(QRectF(-0.2 + 0.4*j ,(i-1)*1.0,  0.4,1.0),
-                   cube->texCoords[i*3+j+1], &(buf[bufind]));
+                   mainWidget->colorSquareTexCoords[i*3+j+1], &(buf[bufind]));
        bufind +=6;
     }
     needsRedraw = false;
