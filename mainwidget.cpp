@@ -356,6 +356,11 @@ QVector3D MainWidget::winToGl(const QVector3D &v)const
     return res;
 }
 
+QString MainWidget::projectDir() const
+{
+    return mainWindow->projectDir;
+}
+
 QVector3D MainWidget::winFromGl(const QVector3D &v, int w, float) const
 {
     QVector3D res;
@@ -550,7 +555,7 @@ void MainWidget::touchEvent(QTouchEvent *ev)
 }
 void MainWidget::initCubeTexture()
 {
-   cubeTexture = new QOpenGLTexture(QImage(":/images/cube768.png").mirrored());
+   cubeTexture = new QOpenGLTexture(QImage(":/images/cube512.png").mirrored());
     cubeTexture->setMinificationFilter(QOpenGLTexture::LinearMipMapLinear);
 //    cubeTexture->setMinificationFilter(QOpenGLTexture::Nearest);
     cubeTexture->setMagnificationFilter(QOpenGLTexture::LinearMipMapLinear);
@@ -585,7 +590,7 @@ void MainWidget::keyPressEvent(QKeyEvent *event)
         case 16777264:  //F1
             rotateToSnap(); break;
         case 16777265:    //F2
-            this->saveCubeSnap("shapes/cube.png"); break;
+            this->saveFigureSnap("shapes/cube.png"); break;
         case  16777266:   //F3
             {fillFacePending = true; break;}
         case  16777267:   //F4
@@ -628,7 +633,7 @@ void MainWidget::saveAll()
 }
 
 GameStartInfo::GameStartInfo(int _ncells, uchar *_data, bool _editor) : ncells(_ncells),
-    data(_data), editor(_editor)
+    data(_data), editor(_editor), vertexInfo(nullptr)
 {
 
 }

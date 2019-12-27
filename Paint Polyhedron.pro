@@ -46,6 +46,8 @@ RESOURCES += \
 target.path = $$[QT_INSTALL_EXAMPLES]/opengl/cube
 INSTALLS += target
 
+QMAKE_CXXFLAGS += "-Wno-old-style-cast"
+QMAKE_CXXFLAGS += "-Wno-conversion"
 
 FORMS += \
     mainwindow.ui

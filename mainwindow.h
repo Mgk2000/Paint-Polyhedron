@@ -11,6 +11,10 @@
 #include <QJsonArray>
 #include <QJsonObject>
 #include <QtMath>
+struct DataFileInfo{
+    ushort type, division, ncells;
+    char c[10];
+};
 
 class QTableView;
 namespace Ui {

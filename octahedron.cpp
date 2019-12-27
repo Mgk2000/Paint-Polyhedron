@@ -3,6 +3,12 @@
 
 Octahedron::Octahedron(MainWidget * mw, bool _little) : Polyhedron (mw, _little)
 {
+    if (mainWidget->gameStartInfo.vertexInfo)
+    {
+        loadVertexInfo();
+        vertexData = new CubeVertexData[faces.length()* 3];
+        return;
+    }
     radius = 1.7f;
     Vertex v0(0,0,-1);
     vertices.append(v0);
@@ -59,8 +65,7 @@ Octahedron::Octahedron(MainWidget * mw, bool _little) : Polyhedron (mw, _little)
     faces.append(f6);
     _Face f7(this, 5,1,4);
     faces.append(f7);
-    for (int i=0; i< faces.length(); i++)
-        faces[i].color = i % 6 +1;
-
-    vertexData = new CubeVertexData[24];
+    setDivision();
+    saveVertexInfo();
+    vertexData = new CubeVertexData[faces.length()* 3];
 }

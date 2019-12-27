@@ -10,5 +10,6 @@
         <file>staticVshader.glsl</file>
         <file>staticFshader.glsl</file>
         <file>colorVshader.glsl</file>
+        <file>images/cube512.png</file>
     </qresource>
 </RCC>

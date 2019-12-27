@@ -317,6 +317,18 @@ int Cube::validColorsCount(RotatingFigure *lf)
 
 }
 
+void Cube::getCellsData(char *buf) const
+{
+    for (int i =0; i <6; i++)
+        for (int j=0; j< ncells; j++)
+            for (int k=0; k < ncells; k++)
+            {
+                int ind = i*ncells * ncells + j* ncells + k;
+                char colorInd = faces[i].cells[j][k].colorInd;
+                buf[ind] = colorInd;
+            }
+}
+
 void Cube::saveMove(int face, int row, int col, uchar colorInd)
 {
     if (mainWidget->gameStartInfo.editor)
@@ -377,21 +389,24 @@ void Face::fillVertexData(CubeVertexData *buf, QVector2D  texCoords[])
 
 void Face::addCellVertexData(CubeVertexData * buf, QVector2D& texCoords, int r, int c)
 {
-    buf[0].texCoord = texCoords;
-    buf[1].texCoord = texCoords+ QVector2D(0.3333f, 0);
-    buf[2].texCoord = texCoords+ QVector2D(0.3333f, 0.3333f);
-    buf[3].texCoord = buf[2].texCoord;
-    buf[4].texCoord = texCoords+ QVector2D(0.0f, 0.3333f);
-    buf[5].texCoord = buf[0].texCoord;
-    if (cube->little)
+    float dt = 0.05;
+    if (!cube->little)
     {
-        float dt = 0.1;
-        buf[0].texCoord = buf[0].texCoord + QVector2D(dt , dt);
-        buf[1].texCoord = buf[1].texCoord + QVector2D(-dt , dt);
-        buf[2].texCoord = buf[2].texCoord + QVector2D(-dt , -dt);
-        buf[3].texCoord = buf[2].texCoord;
-        buf[4].texCoord = buf[4].texCoord + QVector2D(dt , -dt);
-        buf[5].texCoord = buf[0].texCoord;
+        buf[0].texCoord = texCoords + QVector2D (dt,0);
+        buf[1].texCoord = texCoords+ QVector2D(0.3333f, 0);
+        buf[2].texCoord = texCoords+ QVector2D(0.3333f, 0.3333f -dt);
+        buf[3].texCoord = texCoords+ QVector2D(0.3333f-dt, 0.3333f );
+        buf[4].texCoord = texCoords+ QVector2D(0.0f, 0.3333f);
+        buf[5].texCoord = texCoords + QVector2D (0, dt);
+    }
+    else
+    {
+        buf[0].texCoord = texCoords + QVector2D (dt *2, dt);;
+        buf[1].texCoord = texCoords+ QVector2D(0.3333f -dt, dt);;
+        buf[2].texCoord = texCoords+ QVector2D(0.3333f - dt, 0.3333f -dt*2);;
+        buf[3].texCoord = texCoords+ QVector2D(0.3333f-dt*2, 0.3333f-dt );
+        buf[4].texCoord = texCoords+ QVector2D(dt, 0.3333f-dt);
+        buf[5].texCoord = texCoords + QVector2D (dt, dt*2);
     }
     QVector3D n;
     if (incrZ == 0)

@@ -59,12 +59,13 @@ void Palette::fillData()
 
 void Palette::addRectData(const QRectF &r, const QVector2D texCoords,  VertexData *buf)
 {
-    buf[0].texCoord = texCoords;
-    buf[1].texCoord = texCoords+ QVector2D(0.3333f, 0);
-    buf[2].texCoord = texCoords+ QVector2D(0.3333f, 0.3333f);
-    buf[3].texCoord = buf[2].texCoord;
+    float dt = 0.03f;
+    buf[0].texCoord = texCoords + QVector2D(dt, 0);
+    buf[1].texCoord = texCoords+ QVector2D(0.333f , 0);
+    buf[2].texCoord = texCoords+ QVector2D(0.333f,  0.333f-dt);
+    buf[3].texCoord = texCoords+ QVector2D(0.333 -dt, 0.333f);
     buf[4].texCoord = texCoords+ QVector2D(0.0f, 0.3333f);
-    buf[5].texCoord = buf[0].texCoord;
+    buf[5].texCoord = texCoords + QVector2D(0, dt);
 
     buf[0].position = QVector3D(r.left(), -r.bottom(), 0);
     buf[1].position = QVector3D(r.right(), -r.bottom(), 0);

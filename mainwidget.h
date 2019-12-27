@@ -81,6 +81,7 @@ struct GameStartInfo
     bool editor;
     bool playMusic;
     bool playSounds;
+    char * vertexInfo;
 };
 class Buttons;
 class MainWidget : public QOpenGLWidget, protected QOpenGLFunctions
@@ -109,6 +110,7 @@ public:
     QVector3D rotatePoint(const QVector3D &v) const;
     QVector3D winToGl(const QVector3D &v) const;
     QVector2D colorSquareTexCoords[7];
+    QString projectDir() const;
 protected:
     void mousePressEvent(QMouseEvent *e) override;
     void mouseReleaseEvent(QMouseEvent *e) override;
@@ -157,7 +159,7 @@ private:
     void victory();
     bool _victory;
     QDateTime startTime,endTime;
-    void saveCubeSnap(const QString& fn);
+    void saveFigureSnap(const QString& fn);
     void rotateToSnap();
     void saveAll();
     void duplicateFace();

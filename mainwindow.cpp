@@ -7,11 +7,6 @@
 #include <QMessageBox>
 #include <QPainter>
 #include <QScroller>
-struct DataFileInfo{
-    ushort type, division, ncells;
-    char c[10];
-    char buf[3000];
-};
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow), mainWidget(nullptr), _ncols(5)
@@ -217,8 +212,11 @@ void MainWindow::startDataGame(int ind, QString unfinished)
     QFile f (fn);
     f.open(QIODevice::ReadOnly);
     DataFileInfo head;
-    f.read((char*)&head, f.size());
-    GameStartInfo si(head.ncells, (uchar*)head.buf, ui->editorCheckBox->isChecked());
+    int bufSize = f.size() -16;
+    char * buf = new char [bufSize];
+    f.read((char*)&head, sizeof(head));
+    f.read(buf, bufSize);
+    GameStartInfo si(head.ncells, (uchar*)buf, ui->editorCheckBox->isChecked());
     si.type = head.type;
     si.division = head.division;
     si.playMusic = settings.playMusic;
@@ -257,6 +255,7 @@ void MainWindow::startDataGame(int ind, QString unfinished)
     }
     si.currGameFile = &currGameFile;
     startGame(si);
+    delete[] buf;
 }
 void MainWindow::startGame(GameStartInfo& si)
 {
@@ -304,7 +303,22 @@ void MainWindow::on_ncellsOkButton_clicked()
     si.division = ui->divideSpinBox->value();
     si.playMusic = false;
     si.playSounds = false;
+    if (si.type != 0)
+    {
+        QString vfs = QString(projectDir + "/settings/%1_%2_%3.vert").arg(si.type).arg(si.division).arg(si.ncells);
+        QFile f (vfs);
+        if (f.exists())
+        {
+            f.open(QIODevice::ReadOnly);
+            si.vertexInfo = new char[f.size()];
+            f.read(si.vertexInfo, f.size());
+        }
+        else
+            si.vertexInfo = nullptr;
+    }
     startGame(si);
+    if (si.vertexInfo)
+        delete[] si.vertexInfo;
 }
 bool dataFileLess (const DataFile& df1, const DataFile& df2)
 {
