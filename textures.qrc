@@ -167,5 +167,9 @@
         <file>shapes/80.png</file>
         <file>sounds/wag.wav</file>
         <file>colorFshader.glsl</file>
+        <file>shapes/81.dat</file>
+        <file>shapes/81.png</file>
+        <file>shapes/82.dat</file>
+        <file>shapes/82.png</file>
     </qresource>
 </RCC>

@@ -51,7 +51,8 @@ void Polyhedron::draw()
 }
 void Polyhedron::setData(const uchar *data)
 {
-
+    for (int i =0; i<faces.length(); i++)
+        setFaceColor (i,data[i]);
 }
 int Polyhedron::pick(float mx, float my, int icolor)
 {
@@ -262,6 +263,7 @@ bool Polyhedron::isTriangleFace(int iA, int iB, int iC) const
         }
 
     qDebug() << iA << iB << iC << "Face";
+    return true;
 }
 
 bool Polyhedron::isEdgeExists(int iA, int iB) const

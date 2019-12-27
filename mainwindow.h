@@ -93,6 +93,7 @@ private:
     void getCurrMaxLevel();
     int maxLevel, currMaxLevel;
     int indFromNo(int fno) const;
+    void loadVertexInfo(GameStartInfo*);
 public slots:
     void applicationStateChanged(Qt::ApplicationState state);
 };

@@ -60,6 +60,21 @@ int MainWindow::indFromNo(int fno) const
             return i;
 }
 
+void MainWindow::loadVertexInfo(GameStartInfo * si)
+{
+    QString vfs = QString(projectDir + "/settings/%1_%2_%3.vert").
+            arg(si->type).arg(si->division).arg(si->ncells);
+    QFile f (vfs);
+    if (f.exists())
+    {
+        f.open(QIODevice::ReadOnly);
+        si->vertexInfo = new char[f.size()];
+        f.read(si->vertexInfo, f.size());
+    }
+    else
+        si->vertexInfo = nullptr;
+}
+
 void MainWindow::applicationStateChanged(Qt::ApplicationState state)
 {
     qDebug() << "AppState=" << state;
@@ -186,7 +201,7 @@ void MainWindow::getProjectDir()
     QString exedir = QDir(".").absolutePath();
     QDir dir("shapes");
     if (!dir.exists())
-        dir.setPath("../Paint Polyhedron");
+        dir.setPath("../Paint-Polyhedron");
     bool b = dir.exists();
     projectDir = dir.absolutePath();
     qDebug() << "projectDir=" << projectDir;
@@ -219,15 +234,17 @@ void MainWindow::startDataGame(int ind, QString unfinished)
     GameStartInfo si(head.ncells, (uchar*)buf, ui->editorCheckBox->isChecked());
     si.type = head.type;
     si.division = head.division;
+    if (si.type !=0)
+        loadVertexInfo(&si);
     si.playMusic = settings.playMusic;
     si.playSounds = settings.playSounds;
     if (unfinished != "")
     {
         currGameFile.setFileName(projectDir + "/settings/" +  unfinished);
         qDebug() << currGameFile.exists() << currGameFile.size() << f.size();
-        if (currGameFile.size() == f.size() - 16)
+        if (currGameFile.size() == bufSize)
         {
-        si.unfinishedData = new uchar[f.size()-16];
+        si.unfinishedData = new uchar[bufSize];
         currGameFile.open(QIODevice::ReadWrite);
         currGameFile.read((char*)si.unfinishedData ,currGameFile.size());
         }
@@ -236,22 +253,24 @@ void MainWindow::startDataGame(int ind, QString unfinished)
             currGameFile.close();
             currGameFile.remove();
             currGameFile.open(QIODevice::ReadWrite);
-            char* ubuf = new char [f.size()-16];
-            for (int i =0; i< f.size(); i++)
+            char* ubuf = new char [bufSize];
+            for (int i =0; i< bufSize; i++)
                 ubuf[i] = 0;
-            currGameFile.write(ubuf, f.size()-16);
+            currGameFile.write(ubuf, bufSize);
             si.unfinishedData = nullptr;
+            delete[] ubuf;
         }
     }
     else
     {
         currGameFile.setFileName(QString("%1.unf").arg(dataFiles[ind].fileNo));
         currGameFile.open(QIODevice::ReadWrite);
-        char* ubuf = new char [f.size()-16];
-        for (int i =0; i< f.size(); i++)
+        char* ubuf = new char [bufSize];
+        for (int i =0; i< bufSize; i++)
             ubuf[i] = 0;
-        currGameFile.write(ubuf, f.size()-16);
+        currGameFile.write(ubuf, bufSize);
         si.unfinishedData = nullptr;
+        delete[] ubuf;
     }
     si.currGameFile = &currGameFile;
     startGame(si);
@@ -304,18 +323,7 @@ void MainWindow::on_ncellsOkButton_clicked()
     si.playMusic = false;
     si.playSounds = false;
     if (si.type != 0)
-    {
-        QString vfs = QString(projectDir + "/settings/%1_%2_%3.vert").arg(si.type).arg(si.division).arg(si.ncells);
-        QFile f (vfs);
-        if (f.exists())
-        {
-            f.open(QIODevice::ReadOnly);
-            si.vertexInfo = new char[f.size()];
-            f.read(si.vertexInfo, f.size());
-        }
-        else
-            si.vertexInfo = nullptr;
-    }
+        loadVertexInfo(&si);
     startGame(si);
     if (si.vertexInfo)
         delete[] si.vertexInfo;
