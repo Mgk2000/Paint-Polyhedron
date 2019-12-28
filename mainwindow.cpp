@@ -62,8 +62,8 @@ int MainWindow::indFromNo(int fno) const
 
 void MainWindow::loadVertexInfo(GameStartInfo * si)
 {
-    QString vfs = QString(projectDir + "/settings/%1_%2_%3.vert").
-            arg(si->type).arg(si->division).arg(si->ncells);
+    QString vfs = QString(projectDir + "/settings/%1_%2.vert").
+            arg(si->type).arg(si->division);
     QFile f (vfs);
     if (f.exists())
     {

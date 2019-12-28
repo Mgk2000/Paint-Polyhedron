@@ -327,10 +327,9 @@ void Polyhedron::saveVertexInfo()
            memcpy(buf, &ii, sizeof(ii));
            buf += sizeof(int);
        }
-   QFile f (QString((mainWidget->projectDir() + "/settings/%1_%2_%3.vert")
+   QFile f (QString((mainWidget->projectDir() + "/settings/%1_%2.vert")
          .arg(mainWidget->gameStartInfo.type)
-         .arg(mainWidget->gameStartInfo.division)
-         .arg(mainWidget->gameStartInfo.ncells)));
+         .arg(mainWidget->gameStartInfo.division)));
    f.open(QIODevice::WriteOnly);
    f.write(obuf, fsize);
    delete[] obuf;
