@@ -37,7 +37,9 @@
         31,
         36,
         81,
-        82
+        82,
+        91,
+        92
     ],
     "playMusic": false,
     "playSounds": true

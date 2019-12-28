@@ -12,6 +12,7 @@ SOURCES += main.cpp \
     cuboid.cpp \
     drawingobject.cpp \
     geometry.cpp \
+    icosahedron.cpp \
     mainwindow.cpp \
     octahedron.cpp \
     openglprogram.cpp \
@@ -19,7 +20,8 @@ SOURCES += main.cpp \
     polyhedron.cpp \
     rotatingfigure.cpp \
     saver.cpp \
-    soundeffect.cpp
+    soundeffect.cpp \
+    tetrahedron.cpp
 
 SOURCES += \
     mainwidget.cpp
@@ -31,6 +33,7 @@ HEADERS += \
     cuboid.h \
     drawingobject.h \
     geometry.h \
+    icosahedron.h \
     mainwindow.h \
     octahedron.h \
     openglprogram.h \
@@ -38,7 +41,8 @@ HEADERS += \
     mainwidget.h \
     polyhedron.h \
     rotatingfigure.h \
-    soundeffect.h
+    soundeffect.h \
+    tetrahedron.h
 
 RESOURCES += \
     shaders.qrc \

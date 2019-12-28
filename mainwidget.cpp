@@ -60,6 +60,8 @@
 #include "polyhedron.h"
 #include "octahedron.h"
 #include "cuboid.h"
+#include "icosahedron.h"
+#include "tetrahedron.h"
 #include <QtMath>
 #include <QElapsedTimer>
 #include "mainwindow.h"
@@ -204,7 +206,10 @@ void MainWidget::timerEvent(QTimerEvent *)
     dt.setMSecsSinceEpoch(msecs);
     dt.setOffsetFromUtc(0);
     QString sdt = dt.toString("h:mm:ss");
-    _bitmapText.setText(sdt + "  "  + QString("%1/%2").arg(nValidColors).arg(nTotalColors));
+    if (gameStartInfo.editor)
+        _bitmapText.setText(sdt + "  "  + QString("%1/%2").arg(figure->notGrayColorsCount()).arg(nTotalColors));
+     else
+        _bitmapText.setText(sdt + "  "  + QString("%1/%2").arg(nValidColors).arg(nTotalColors));
     if (!isEditMode())
     {
     if (angularSpeed < 0.5)
@@ -334,6 +339,16 @@ void MainWidget::createFigure()
     {
         figure = new Octahedron(this);
         littleFigure = new LittleOctahedron((Octahedron*)figure);
+    }
+    else if (gameStartInfo.type == 2)
+    {
+        figure = new Icosahedron(this);
+        littleFigure = new LittleIcosahedron((Icosahedron*)figure);
+    }
+    else if (gameStartInfo.type == 3)
+    {
+        figure = new Tetrahedron(this);
+        littleFigure = new LittleTetrahedron((Tetrahedron*)figure);
     }
     else
     {

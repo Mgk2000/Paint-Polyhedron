@@ -329,6 +329,17 @@ void Cube::getCellsData(char *buf) const
             }
 }
 
+int Cube::notGrayColorsCount() const
+{
+    int vc =0;
+    for (int i=0; i< 6; i ++)
+        for (int j =0; j< ncells; j++)
+            for (int k =0; k< ncells; k++)
+                if (faces[i].cells[j][k].colorInd)
+                    vc ++;
+    return vc;
+}
+
 void Cube::saveMove(int face, int row, int col, uchar colorInd)
 {
     if (mainWidget->gameStartInfo.editor)

@@ -133,7 +133,7 @@ void PolyhedronBase::setDivision(int div)
     float maxLen =10* radius;
     for (int i =0; i<  div; i++)
     {
-        increaseDivision(maxLen * 0.8);
+        increaseDivision(maxLen * 1.9);
         maxLen =0;
         for (int j =0; j< edges.count(); j++)
         {
@@ -511,6 +511,15 @@ int Polyhedron::validColorsCount(RotatingFigure *lf) const
     return nc;
 }
 
+int Polyhedron::notGrayColorsCount() const
+{
+    int nc =0;
+    for (int i=0; i< faces.length(); i++)
+        if (faces[i].color)
+            nc++;
+    return nc;
+}
+
 LittlePolyhedron::LittlePolyhedron(Polyhedron *bigPoly): PolyhedronBase(nullptr, true)
 {
     vertices= bigPoly->vertices;
@@ -522,3 +531,4 @@ LittlePolyhedron::LittlePolyhedron(Polyhedron *bigPoly): PolyhedronBase(nullptr,
     mainWidget = bigPoly->mainWidget;
     bigPoly->littlePoly = this;
 }
+

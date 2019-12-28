@@ -187,5 +187,13 @@
         <file>shapes/89.png</file>
         <file>shapes/90.dat</file>
         <file>shapes/90.png</file>
+        <file>shapes/91.dat</file>
+        <file>shapes/91.png</file>
+        <file>shapes/92.dat</file>
+        <file>shapes/92.png</file>
+        <file>shapes/93.dat</file>
+        <file>shapes/93.png</file>
+        <file>shapes/94.dat</file>
+        <file>shapes/94.png</file>
     </qresource>
 </RCC>

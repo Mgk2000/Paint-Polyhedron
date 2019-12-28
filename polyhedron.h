@@ -78,6 +78,7 @@ public :
     int pick(int nf, int icolor);
 
     int validColorsCount(RotatingFigure *lf) const override;
+    int notGrayColorsCount() const override;
 private:
     LittlePolyhedron* littlePoly;
     friend class LittlePolyhedron;

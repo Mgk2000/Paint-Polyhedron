@@ -68,6 +68,7 @@ public:
     int validColorsCount (RotatingFigure* lf) const override;
     int getNCells() const override {return ncells * ncells * 6;}
     void getCellsData(char* buf) const override;
+    int notGrayColorsCount() const override;
 protected:
 private:
     QVector3D faceCorners[6][4];
