@@ -2,7 +2,7 @@ QT       += core gui widgets opengl multimedia
 CONFIG     += debug
 
 CONFIG += qt warn_on rtti exceptions
-TARGET = Paint Polyhedron
+TARGET = Paint-Polyhedron
 TEMPLATE = app
 # LIBS    += -lqjson
 SOURCES += main.cpp \

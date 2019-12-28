@@ -1,17 +1,21 @@
 #include "polyhedron.h"
 #include "cube.h"
 #include "mainwindow.h"
+QList <Vertex> quququ;
+QList <Edge> dududu;
+QList <_Face> bububu;
 
-Polyhedron::Polyhedron(MainWidget * mw, bool _little) : RotatingFigure (mw, _little)
+PolyhedronBase::PolyhedronBase(MainWidget * mw, bool _little) : RotatingFigure (mw, _little),
+    vertices(quququ), edges (dududu), faces(bububu)
 {
 
 }
 
-Polyhedron::~Polyhedron()
+PolyhedronBase::~PolyhedronBase()
 {
     delete[] vertexData;
 }
-void Polyhedron::init()
+void PolyhedronBase::init()
 {
 /*    for (int i=0; i< faces.length(); i++)
         faces[i].color = i % 6 +1;*/
@@ -19,7 +23,7 @@ void Polyhedron::init()
     for (int i=0; i< faces.length(); i++)
         faces[i].fillVertexData(vertexData + i*3);
 }
-void Polyhedron::draw()
+void PolyhedronBase::draw()
 {
     if (needsCellDraw || needsFullDraw)
         fillData();
@@ -49,69 +53,13 @@ void Polyhedron::draw()
 
 
 }
-void Polyhedron::setData(const uchar *data)
+void PolyhedronBase::setData(const uchar *data)
 {
     for (int i =0; i<faces.length(); i++)
         setFaceColor (i,data[i]);
 }
-int Polyhedron::pick(float mx, float my, int icolor)
-{
-    uint nv = (uint) vertices.length();
-    QVector3D* rotatedVertices = new QVector3D [nv];
-    bool* pointExists = new bool[nv];
-    for (uint i =0; i< nv; i++)
-        pointExists[i] = false;
-    QVector3D v[3];
-    QList<uint> pickFaces;
-    uint nf = faces.length();
-    for (uint i =0; i< nf; i++)
-    {
-        _Face& f = faces[i];
-        for (uint j =0; j< 3; j++)
-        {
-            uint vind = f.vertices[j];
-            if (pointExists[vind])
-                v[j] = rotatedVertices[vind];
-            else
-            {
-                v[j] = rotatePoint(vertices[vind].vertex);
-                rotatedVertices[vind] = v[j];
-                pointExists[vind] = true;
-            }
-         }
-         if (PointInTriangle(mx, my, v[0].x(), v[0].y(), v[1].x(), v[1].y(), v[2].x(), v[2].y()) )
-         {
-             pickFaces.append(i);
-             if (pickFaces.length() == 2)
-             {
-                 float facez[2];
-                 for (uint k =0; k<2; k++)
-                 {
-                     uint indf = pickFaces[k];
-                     facez[k] = 0;
-                     _Face& f = faces[indf];
-                     for (uint j =0; j< 3; j++)
-                     {
-                         float z = rotatedVertices[f.vertices[j]].z();
-                         facez[k] = facez[k] + z;
-                     }
-                 }
-                 int nearInd = facez[0] < facez[1] ? 0 : 1;
-                 int farInd = 1- nearInd;
-                 setFaceColor(pickFaces[nearInd], icolor);
-                 needsCellDraw = true;
-                 selIndex = pickFaces[nearInd] * 3;
-//                 qDebug() << "Near face =" << pickFaces[nearInd] << "Color=" << faces[pickFaces[nearInd]].color;
-//                 qDebug() << "Far face =" << pickFaces[farInd] << "Color=" << faces[pickFaces[farInd]].color;
-             }
-         }
-    }
-    delete[] rotatedVertices;
-    delete[] pointExists;
-    return 0;
-}
 
-void Polyhedron::fillData()
+void PolyhedronBase::fillData()
 {
     buffers[0].bind();
     if (needsFullDraw)
@@ -127,17 +75,17 @@ void Polyhedron::fillData()
 
 }
 
-int Polyhedron::validColorsCount(RotatingFigure *lf)
+int PolyhedronBase::validColorsCount(RotatingFigure *lf)
 {
     return 0;
 }
 
-void Polyhedron::initGL(QOpenGLShaderProgram *prog)
+void PolyhedronBase::initGL(QOpenGLShaderProgram *prog)
 {
     DrawingObject::initGL(prog,1);
 }
 
-void Polyhedron::setDivision()
+void PolyhedronBase::setDivision()
 {
     int nf =0;
     for (int i =0; i< vertices.length()-2; i++)
@@ -160,7 +108,7 @@ void Polyhedron::setDivision()
     }
 }
 
-void Polyhedron::increaseDivision(float maxLen)
+void PolyhedronBase::increaseDivision(float maxLen)
 {
 /*    struct IVertex : public Vertex
     {
@@ -228,13 +176,13 @@ void Polyhedron::increaseDivision(float maxLen)
         }
 }
 
-void Polyhedron::getCellsData(char *buf) const
+void PolyhedronBase::getCellsData(char *buf) const
 {
     for (int i = 0 ; i< faces.length(); i++)
         buf[i] = faces[i].color;
 }
 
-bool Polyhedron::isTriangleFace(int iA, int iB, int iC) const
+bool PolyhedronBase::isTriangleFace(int iA, int iB, int iC) const
 {
     QVector3D AB =  vertices[iB].vertex - vertices[iA].vertex;
     QVector3D AC =  vertices[iC].vertex - vertices[iA].vertex;
@@ -266,7 +214,7 @@ bool Polyhedron::isTriangleFace(int iA, int iB, int iC) const
     return true;
 }
 
-bool Polyhedron::isEdgeExists(int iA, int iB) const
+bool PolyhedronBase::isEdgeExists(int iA, int iB) const
 {
     for (int i =0; i< edges.length(); i++)
         if ((edges[i].vertices[0] == iA && edges[i].vertices[1] == iB) ||
@@ -275,7 +223,7 @@ bool Polyhedron::isEdgeExists(int iA, int iB) const
     return false;
 }
 
-bool Polyhedron::isClockWise(int i, int j, int k) const
+bool PolyhedronBase::isClockWise(int i, int j, int k) const
 {
     QVector3D v1 = vertices[i].vertex - vertices[j].vertex;
     QVector3D v2 = vertices[i].vertex - vertices[k].vertex;
@@ -283,17 +231,17 @@ bool Polyhedron::isClockWise(int i, int j, int k) const
     float p = QVector3D::dotProduct(vertices[i].vertex, n);
     return p>0;
 }
-void Polyhedron::setNcells(int nc)
+void PolyhedronBase::setNcells(int nc)
 {
 
 }
 
-int Polyhedron::nElements() const
+int PolyhedronBase::nElements() const
 {
     return faces.count() * 3;
 }
 
-void Polyhedron::saveVertexInfo()
+void PolyhedronBase::saveVertexInfo()
 {
     int fsize = sizeof(int) * 2 +
             faces.length() * sizeof(int) * 3 +
@@ -336,7 +284,7 @@ void Polyhedron::saveVertexInfo()
 
 }
 
-void Polyhedron::loadVertexInfo()
+void PolyhedronBase::loadVertexInfo()
 {
     char * buf = mainWidget->gameStartInfo.vertexInfo;
     int nv = *((int*) buf);
@@ -357,7 +305,7 @@ void Polyhedron::loadVertexInfo()
    }
 }
 
-void Polyhedron::setFaceColor(uint nf, int iColor)
+void PolyhedronBase::setFaceColor(uint nf, int iColor)
 {
     faces[nf].color = iColor;
     faces[nf].fillVertexData(vertexData + nf*3);
@@ -368,7 +316,7 @@ Vertex::Vertex(float _x, float _y, float _z)
     vertex = QVector3D(_x, _y, _z);
 }
 
-_Face::_Face(Polyhedron* _parent, int indA, int indB, int indC) : parent(_parent)
+_Face::_Face(PolyhedronBase* _parent, int indA, int indB, int indC) : color(0), parent(_parent)
 {
     vertices.append(indA);
     vertices.append(indB);
@@ -402,10 +350,82 @@ Edge::Edge(int indA, int indB)
     vertices[1] = indB;
 }
 
-float Polyhedron::edgeLength(int i)
+float PolyhedronBase::edgeLength(int i)
 {
     int i0 = edges[i].vertices[0];
     int i1 = edges[i].vertices[1];
     return (vertices[i0].vertex - vertices[i1].vertex).length();
 }
 
+
+Polyhedron::Polyhedron(MainWidget *mw) : PolyhedronBase(mw, false)
+{
+    vertices= _vertices;
+    edges = _edges;
+    faces = _faces;
+}
+int Polyhedron::pick(float mx, float my, int icolor)
+{
+    uint nv = (uint) vertices.length();
+    QVector3D* rotatedVertices = new QVector3D [nv];
+    bool* pointExists = new bool[nv];
+    for (uint i =0; i< nv; i++)
+        pointExists[i] = false;
+    QVector3D v[3];
+    QList<uint> pickFaces;
+    uint nf = faces.length();
+    for (uint i =0; i< nf; i++)
+    {
+        _Face& f = faces[i];
+        for (uint j =0; j< 3; j++)
+        {
+            uint vind = f.vertices[j];
+            if (pointExists[vind])
+                v[j] = rotatedVertices[vind];
+            else
+            {
+                v[j] = rotatePoint(vertices[vind].vertex);
+                rotatedVertices[vind] = v[j];
+                pointExists[vind] = true;
+            }
+         }
+         if (PointInTriangle(mx, my, v[0].x(), v[0].y(), v[1].x(), v[1].y(), v[2].x(), v[2].y()) )
+         {
+             pickFaces.append(i);
+             if (pickFaces.length() == 2)
+             {
+                 float facez[2];
+                 for (uint k =0; k<2; k++)
+                 {
+                     uint indf = pickFaces[k];
+                     facez[k] = 0;
+                     _Face& f = faces[indf];
+                     for (uint j =0; j< 3; j++)
+                     {
+                         float z = rotatedVertices[f.vertices[j]].z();
+                         facez[k] = facez[k] + z;
+                     }
+                 }
+                 int nearInd = facez[0] < facez[1] ? 0 : 1;
+                 int farInd = 1- nearInd;
+                 setFaceColor(pickFaces[nearInd], icolor);
+                 needsCellDraw = true;
+                 selIndex = pickFaces[nearInd] * 3;
+//                 qDebug() << "Near face =" << pickFaces[nearInd] << "Color=" << faces[pickFaces[nearInd]].color;
+//                 qDebug() << "Far face =" << pickFaces[farInd] << "Color=" << faces[pickFaces[farInd]].color;
+             }
+         }
+    }
+    delete[] rotatedVertices;
+    delete[] pointExists;
+    return 0;
+}
+
+LittlePolyhedron::LittlePolyhedron(Polyhedron *bigPoly): PolyhedronBase(nullptr, true)
+{
+    vertices= bigPoly->vertices;
+    edges = bigPoly->edges;
+    faces = bigPoly->faces;
+    mainWidget = bigPoly->mainWidget;
+
+}

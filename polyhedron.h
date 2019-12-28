@@ -1,7 +1,7 @@
 #ifndef POLYHEDRON_H
 #define POLYHEDRON_H
 #include "rotatingfigure.h"
-class Polyhedron;
+class PolyhedronBase;
 struct Vertex
 {
     Vertex() {}
@@ -21,23 +21,22 @@ struct Edge
 struct CubeVertexData;
 struct _Face
 {
-    _Face(Polyhedron* _parent, int indA, int indB, int indC);
+    _Face(PolyhedronBase* _parent, int indA, int indB, int indC);
     const QVector3D& vertex(int ind) const;
     void fillVertexData(CubeVertexData* buf);
     QList <uint> vertices;
     ushort color;
-    Polyhedron* parent;
+    PolyhedronBase* parent;
 };
 
-class Polyhedron : public RotatingFigure
+class PolyhedronBase : public RotatingFigure
 {
 public:
-    Polyhedron(MainWidget * mw, bool _little);
-    virtual ~Polyhedron();
+    PolyhedronBase(MainWidget * mw, bool _little);
+    virtual ~PolyhedronBase();
     void init() override;
     void draw() override;
     void setData(const uchar *data) override;
-    int pick(float mx, float my, int icolor) override;
     void fillData() override;
     int validColorsCount (RotatingFigure* lf) override;
     void initGL(QOpenGLShaderProgram* prog) override;
@@ -52,9 +51,9 @@ protected:
     bool isClockWise(int i, int j, int) const;
     float inline edgeLength(int i);
     void setNcells(int nc);
-    QList <Vertex> vertices;
-    QList <Edge> edges;
-    QList <_Face> faces;
+    QList <Vertex> &vertices;
+    QList <Edge> &edges;
+    QList <_Face> &faces;
     int nElements() const;
     CubeVertexData* vertexData;
     float radius;
@@ -64,5 +63,23 @@ protected:
     void loadVertexInfo();
     void setFaceColor(uint nf, int iColor);
 };
+class Polyhedron: public PolyhedronBase
+{
+public :
+    Polyhedron(MainWidget* mw);
+    int pick(float mx, float my, int icolor) override;
 
+private:
+    QList <Vertex> _vertices;
+    QList <Edge> _edges;
+    QList <_Face> _faces;
+    friend class LittlePolyhedron;
+};
+class LittlePolyhedron: public PolyhedronBase
+{
+public:
+    LittlePolyhedron(Polyhedron* bigPoly);
+    int pick(float mx, float my, int icolor) override {return 0;}
+
+};
 #endif // POLYHEDRON_H

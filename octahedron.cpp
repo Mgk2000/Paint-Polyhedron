@@ -1,7 +1,7 @@
 #include "octahedron.h"
 #include "cube.h"
 
-Octahedron::Octahedron(MainWidget * mw, bool _little) : Polyhedron (mw, _little)
+Octahedron::Octahedron(MainWidget * mw) : Polyhedron (mw)
 {
     if (mainWidget->gameStartInfo.vertexInfo)
     {
@@ -67,5 +67,10 @@ Octahedron::Octahedron(MainWidget * mw, bool _little) : Polyhedron (mw, _little)
     faces.append(f7);
     setDivision();
     saveVertexInfo();
+    vertexData = new CubeVertexData[faces.length()* 3];
+}
+
+LittleOctahedron::LittleOctahedron(Octahedron *bigOct): LittlePolyhedron(bigOct)
+{
     vertexData = new CubeVertexData[faces.length()* 3];
 }

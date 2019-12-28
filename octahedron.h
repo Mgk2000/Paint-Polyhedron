@@ -5,7 +5,11 @@
 class Octahedron : public Polyhedron
 {
 public:
-    Octahedron(MainWidget * mw, bool _little);
+    Octahedron(MainWidget * mw);
 };
-
+class LittleOctahedron : public LittlePolyhedron
+{
+public:
+    LittleOctahedron(Octahedron* bigOct);
+};
 #endif // OCTAHEDRON_H

@@ -323,13 +323,13 @@ void MainWidget::createFigure()
     }
     else if (gameStartInfo.type == 1)
     {
-        figure = new Octahedron(this, false);
-        littleFigure = new Octahedron(this, true);
+        figure = new Octahedron(this);
+        littleFigure = new LittleOctahedron((Octahedron*)figure);
     }
     else
     {
-        figure = new Polyhedron(this, false);
-        littleFigure = new Polyhedron(this, true);
+//        figure = nePolyhedronBaseon(this, false);
+//        littleFigure = nePolyhedronBaseon(this, true);
     }
     figure->initGL(_program.shaderProgram());
     littleFigure->initGL(_program.shaderProgram());
