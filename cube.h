@@ -65,7 +65,7 @@ public:
     void duplicateFace (int nf);
     void rotateFace (int nf);
     void fillFace(int nf, int iColor);
-    int validColorsCount (RotatingFigure* lf) override;
+    int validColorsCount (RotatingFigure* lf) const override;
     int getNCells() const override {return ncells * ncells * 6;}
     void getCellsData(char* buf) const override;
 protected:

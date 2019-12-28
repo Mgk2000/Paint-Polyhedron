@@ -38,7 +38,7 @@ public:
     void draw() override;
     void setData(const uchar *data) override;
     void fillData() override;
-    int validColorsCount (RotatingFigure* lf) override;
+    int validColorsCount (RotatingFigure* lf) const override;
     void initGL(QOpenGLShaderProgram* prog) override;
     void setDivision();
     void increaseDivision(float maxLen);
@@ -51,9 +51,9 @@ protected:
     bool isClockWise(int i, int j, int) const;
     float inline edgeLength(int i);
     void setNcells(int nc);
-    QList <Vertex> &vertices;
-    QList <Edge> &edges;
-    QList <_Face> &faces;
+    QList <Vertex> vertices;
+    QList <Edge> edges;
+    QList <_Face> faces;
     int nElements() const;
     CubeVertexData* vertexData;
     float radius;
@@ -63,23 +63,24 @@ protected:
     void loadVertexInfo();
     void setFaceColor(uint nf, int iColor);
 };
+class LittlePolyhedron;
 class Polyhedron: public PolyhedronBase
 {
 public :
     Polyhedron(MainWidget* mw);
     int pick(float mx, float my, int icolor) override;
+    int pick(int nf, int icolor);
 
+    int validColorsCount(RotatingFigure *lf) const override;
 private:
-    QList <Vertex> _vertices;
-    QList <Edge> _edges;
-    QList <_Face> _faces;
+    LittlePolyhedron* littlePoly;
     friend class LittlePolyhedron;
+    void saveMove(int iface, uchar colorInd);
 };
 class LittlePolyhedron: public PolyhedronBase
 {
 public:
     LittlePolyhedron(Polyhedron* bigPoly);
-    int pick(float mx, float my, int icolor) override {return 0;}
-
+    friend class Polyhedron;
 };
 #endif // POLYHEDRON_H

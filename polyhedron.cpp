@@ -1,12 +1,8 @@
 #include "polyhedron.h"
 #include "cube.h"
 #include "mainwindow.h"
-QList <Vertex> quququ;
-QList <Edge> dududu;
-QList <_Face> bububu;
 
-PolyhedronBase::PolyhedronBase(MainWidget * mw, bool _little) : RotatingFigure (mw, _little),
-    vertices(quququ), edges (dududu), faces(bububu)
+PolyhedronBase::PolyhedronBase(MainWidget * mw, bool _little) : RotatingFigure (mw, _little)
 {
 
 }
@@ -75,7 +71,7 @@ void PolyhedronBase::fillData()
 
 }
 
-int PolyhedronBase::validColorsCount(RotatingFigure *lf)
+int PolyhedronBase::validColorsCount(RotatingFigure *lf) const
 {
     return 0;
 }
@@ -360,12 +356,10 @@ float PolyhedronBase::edgeLength(int i)
 
 Polyhedron::Polyhedron(MainWidget *mw) : PolyhedronBase(mw, false)
 {
-    vertices= _vertices;
-    edges = _edges;
-    faces = _faces;
 }
 int Polyhedron::pick(float mx, float my, int icolor)
 {
+    int ret =0;
     uint nv = (uint) vertices.length();
     QVector3D* rotatedVertices = new QVector3D [nv];
     bool* pointExists = new bool[nv];
@@ -408,9 +402,7 @@ int Polyhedron::pick(float mx, float my, int icolor)
                  }
                  int nearInd = facez[0] < facez[1] ? 0 : 1;
                  int farInd = 1- nearInd;
-                 setFaceColor(pickFaces[nearInd], icolor);
-                 needsCellDraw = true;
-                 selIndex = pickFaces[nearInd] * 3;
+                 ret = pick (pickFaces[nearInd], icolor);
 //                 qDebug() << "Near face =" << pickFaces[nearInd] << "Color=" << faces[pickFaces[nearInd]].color;
 //                 qDebug() << "Far face =" << pickFaces[farInd] << "Color=" << faces[pickFaces[farInd]].color;
              }
@@ -418,14 +410,63 @@ int Polyhedron::pick(float mx, float my, int icolor)
     }
     delete[] rotatedVertices;
     delete[] pointExists;
-    return 0;
+    return ret;
+}
+
+int Polyhedron::pick(int nf, int iColor)
+{
+    int oldColor = faces[nf].color;
+    int trueColor = littlePoly->faces[nf].color;
+    int ret =0;
+    if (iColor != trueColor)
+    {
+        mainWidget->sound (0);
+        if (oldColor == trueColor)
+            ret = -1;
+        else ret =0;
+    }
+    else
+    {
+        if (oldColor == trueColor)
+            ret = 0;
+        else
+        {ret =1;
+        mainWidget->sound(1);
+        }
+    }
+    setFaceColor(nf, iColor);
+    saveMove(nf,  iColor);
+    selIndex = nf  * 3;
+    if (iColor != oldColor)
+      needsCellDraw = true;
+    return ret;
+}
+void Polyhedron::saveMove(int iface, uchar colorInd)
+{
+    if (mainWidget->gameStartInfo.editor)
+        return;
+     mainWidget->gameStartInfo.currGameFile->seek(iface);
+     char color = colorInd;
+     mainWidget->gameStartInfo.currGameFile->write(&color,1);
+}
+int Polyhedron::validColorsCount(RotatingFigure *lf) const
+{
+    LittlePolyhedron* lp = (LittlePolyhedron*) lf;
+    int nc = 0;
+    for (int i=0; i < faces.length(); i++)
+        if (faces[i].color == lp->faces[i].color)
+            nc++;
+    return nc;
 }
 
 LittlePolyhedron::LittlePolyhedron(Polyhedron *bigPoly): PolyhedronBase(nullptr, true)
 {
     vertices= bigPoly->vertices;
     edges = bigPoly->edges;
-    faces = bigPoly->faces;
+    int nf = bigPoly->faces.length();
+    faces.reserve(nf);
+    for (int i =0; i< nf; i++)
+        faces.append(_Face(bigPoly->faces[i]));
     mainWidget = bigPoly->mainWidget;
-
+    bigPoly->littlePoly = this;
 }

@@ -304,7 +304,7 @@ void Cube::fillFace(int nf, int iColor)
     fillVertexData(vertexData);
 }
 
-int Cube::validColorsCount(RotatingFigure *lf)
+int Cube::validColorsCount(RotatingFigure *lf) const
 {
     Cube* littleCube = (Cube*) lf;
     int vc =0;
@@ -337,10 +337,6 @@ void Cube::saveMove(int face, int row, int col, uchar colorInd)
      mainWidget->gameStartInfo.currGameFile->seek(ind);
      char color = colorInd;
      mainWidget->gameStartInfo.currGameFile->write(&color,1);
- //    QFileInfo fi (*gameStartInfo.currGameFile);
- //    qDebug() << fi.absoluteFilePath() << fi.size();
-     //    gameStartInfo.unfinishedData[ind] = colorInd;
-
 }
 
 Cell::Cell()

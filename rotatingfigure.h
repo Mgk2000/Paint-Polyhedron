@@ -7,11 +7,11 @@ class RotatingFigure : public DrawingObject
 {
 public:
     RotatingFigure(MainWidget * mw, bool _little);
-    virtual int pick(float mx, float my, int icolor) = 0;
+    virtual int pick(float , float , int ) {return 0;}
     virtual ~RotatingFigure();
     virtual void init() =0;
     virtual void setData(const uchar* data) = 0;
-    virtual int validColorsCount (RotatingFigure* lf) =0;
+    virtual int validColorsCount (RotatingFigure* lf) const {return 0;}
     virtual int getNCells() const =0;
     virtual void getCellsData(char* buf) const =0;
     bool needsCellDraw;

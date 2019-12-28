@@ -169,6 +169,7 @@ void MainWindow::writeSettings()
 
 bool MainWindow::startUnfinishedGame()
 {
+//     return false;
     QString ufn = getUnfinishedGame();
     if (ufn == "")
         return false;
@@ -395,7 +396,7 @@ void MainWindow::getCurrMaxLevel()
 
 bool MainWindow::levelIsLocked(int i) const
 {
-    return dataFiles[i].ncells() > currMaxLevel;
+    return dataFiles[i].ncells() > currMaxLevel  && false;
 }
 
 bool MainWindow::levelIsDone(int ind) const

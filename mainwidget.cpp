@@ -234,8 +234,8 @@ void MainWidget::startGame()
 {
     createFigure();
     _victory = false;
-    nTotalColors = gameStartInfo.ncells * gameStartInfo.ncells * 6;
     figure->init();
+    nTotalColors = figure->getNCells();
     figure->needsFullDraw = true;
     littleFigure->init();
     littleFigure->needsFullDraw = true;
