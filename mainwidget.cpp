@@ -59,6 +59,7 @@
 #include "cube.h"
 #include "polyhedron.h"
 #include "octahedron.h"
+#include "cuboid.h"
 #include <QtMath>
 #include <QElapsedTimer>
 #include "mainwindow.h"
@@ -316,11 +317,19 @@ void MainWidget::createFigure()
     delete figure;
     delete littleFigure;
     }
-    if (gameStartInfo.type == 0 && gameStartInfo.division ==0)
+    if (gameStartInfo.type == 0)
     {
-        figure = new Cube(this, false);
-        littleFigure = new Cube(this, true);
-    }
+        if(gameStartInfo.division ==0)
+        {
+            figure = new Cube(this, false);
+            littleFigure = new Cube(this, true);
+        }
+        else
+        {
+            figure = new Cuboid(this);
+            littleFigure = new LittleCuboid((Cuboid*)figure);
+        }
+     }
     else if (gameStartInfo.type == 1)
     {
         figure = new Octahedron(this);

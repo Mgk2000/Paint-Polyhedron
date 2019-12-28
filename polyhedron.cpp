@@ -80,18 +80,58 @@ void PolyhedronBase::initGL(QOpenGLShaderProgram *prog)
 {
     DrawingObject::initGL(prog,1);
 }
-
-void PolyhedronBase::setDivision()
+void PolyhedronBase::createFacesFromVertices()
 {
-    int nf =0;
+    for (int i =0; i< vertices.length()-2; i++)
+        for (int j = i+1; j< vertices.length()-1; j++)
+            for (int k = j+1; k< vertices.length(); k++)
+                if (isTriangleFace(i, j ,k))
+                {
+                    bool cw = isClockWise(i,j,k);
+                    if (cw)
+                    {
+                        _Face f (this, i,k, j);
+                        faces.append(f);
+                    }
+                    else
+                    {
+                        _Face f (this, i,j,k);
+                        faces.append(f);
+                    }
+                }
+}
+
+void PolyhedronBase::createEdgesFromFaces()
+{
+    edges.clear();
+    for (int i=0; i< faces.length(); i++)
+        for (int j=0; j<3; j++)
+        {
+            int iA = faces[i].vertices[j];
+            int iB = faces[i].vertices[(j+1) %3];
+            if (!edgeExists(iA, iB))
+                  edges.append(Edge(iA, iB));
+        }
+}
+
+bool PolyhedronBase::edgeExists(int iA, int iB)
+{
+    for (int i=0; i< edges.count(); i++)
+        if (Edge(iA, iB) == edges[i])
+            return true;
+    return false;
+}
+void PolyhedronBase::setDivision(int div)
+{
+/*    int nf =0;
     for (int i =0; i< vertices.length()-2; i++)
         for (int j = i+1; j< vertices.length()-1; j++)
             for (int k = j+1; k< vertices.length(); k++)
                 if (isTriangleFace(i, j ,k))
                     nf ++;
-    qDebug() << "Faces=" << nf;
+    qDebug() << "Faces=" << nf;*/
     float maxLen =10* radius;
-    for (int i =0; i<  mainWidget->gameStartInfo.division; i++)
+    for (int i =0; i<  div; i++)
     {
         increaseDivision(maxLen * 0.8);
         maxLen =0;
@@ -119,13 +159,17 @@ void PolyhedronBase::increaseDivision(float maxLen)
         iv.parents[0] = edges[i].vertices[0];
         iv.parents[1] = edges[i].vertices[1];
     }*/
+    float r1 = vertices[0].vertex.length();
     for (int i =0; i< edges.length(); i++)
     {
         Vertex iv;
         iv.vertex = (vertices[edges[i].vertices[0]].vertex +
-                vertices[edges[i].vertices[1]].vertex).normalized() * radius;
+                vertices[edges[i].vertices[1]].vertex).normalized() * r1;
         vertices.append(iv);
      }
+    for (int i=0; i < vertices.length(); i++)
+        qDebug() << "vertices[" << i << "].length=" << vertices[i].vertex.length();
+
     faces.clear();
     edges.clear();
     int nf =0;
@@ -157,7 +201,7 @@ void PolyhedronBase::increaseDivision(float maxLen)
                         _Face f (this, i,j,k);
                         faces.append(f);
                     }
-                    faces[nf-1].color = (i + j + k) % 6 +1;
+//                    faces[nf-1].color = (i + j + k) % 6 +1;
 /*                    if (faces[i].color <1 || faces[i].color> 6)
                         faces[i].color = faces[i].color;*/
 
@@ -344,6 +388,14 @@ Edge::Edge(int indA, int indB)
 {
     vertices[0] = indA;
     vertices[1] = indB;
+}
+
+bool Edge::isEqual(const Edge &e2)
+{
+    return (vertices[0] == e2.vertices[0] &&
+            vertices[1] == e2.vertices[1]) ||
+            (vertices[0] == e2.vertices[1] &&
+            vertices[1] == e2.vertices[0]);
 }
 
 float PolyhedronBase::edgeLength(int i)

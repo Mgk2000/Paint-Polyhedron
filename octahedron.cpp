@@ -65,7 +65,7 @@ Octahedron::Octahedron(MainWidget * mw) : Polyhedron (mw)
     faces.append(f6);
     _Face f7(this, 5,1,4);
     faces.append(f7);
-    setDivision();
+    setDivision(mainWidget->gameStartInfo.division);
     saveVertexInfo();
     vertexData = new CubeVertexData[faces.length()* 3];
 }

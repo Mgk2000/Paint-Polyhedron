@@ -9,6 +9,7 @@ SOURCES += main.cpp \
     bitmaptext.cpp \
     buttons.cpp \
     cube.cpp \
+    cuboid.cpp \
     drawingobject.cpp \
     geometry.cpp \
     mainwindow.cpp \
@@ -27,6 +28,7 @@ HEADERS += \
     bitmaptext.h \
     buttons.h \
     cube.h \
+    cuboid.h \
     drawingobject.h \
     geometry.h \
     mainwindow.h \

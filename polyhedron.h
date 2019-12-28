@@ -17,6 +17,9 @@ struct Edge
     inline float length() const;
     QList <int> neighborEdges [2];
     int faces[2];
+    inline bool isEqual(const Edge& e2);
+    bool operator == (const Edge& e2)
+        {return isEqual(e2);}
 };
 struct CubeVertexData;
 struct _Face
@@ -40,7 +43,7 @@ public:
     void fillData() override;
     int validColorsCount (RotatingFigure* lf) const override;
     void initGL(QOpenGLShaderProgram* prog) override;
-    void setDivision();
+    void setDivision(int div);
     void increaseDivision(float maxLen);
     int getNCells() const override {return faces.length();}
     void getCellsData(char* buf) const override;
@@ -62,6 +65,9 @@ protected:
     void saveVertexInfo();
     void loadVertexInfo();
     void setFaceColor(uint nf, int iColor);
+    void createFacesFromVertices();
+    void createEdgesFromFaces();
+    bool edgeExists(int iA, int iB);
 };
 class LittlePolyhedron;
 class Polyhedron: public PolyhedronBase
