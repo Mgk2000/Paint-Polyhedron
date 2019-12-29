@@ -199,7 +199,7 @@ int Cube::pick(float mx, float my, int icolor)
 
 int Cube::pick(int nf, float x, float y, int iColor)
 {
-//    qDebug() << "Face=" << nf;
+#ifdef WIN32
     if (mainWidget->duplicatePending)
     {
         duplicateFace(nf);
@@ -224,6 +224,7 @@ int Cube::pick(int nf, float x, float y, int iColor)
         mainWidget->update();
         return 0;
     }
+#endif
     int row, col;
     rowColFromXY(nf,x,y, & row, &col);
    // qDebug() << "pick row,col = " << row <<col;
@@ -342,8 +343,10 @@ int Cube::notGrayColorsCount() const
 
 void Cube::saveMove(int face, int row, int col, uchar colorInd)
 {
+#ifdef WIN32
     if (mainWidget->gameStartInfo.editor)
         return;
+#endif
      int ind = face * ncells * ncells + row  * ncells + col;
      mainWidget->gameStartInfo.currGameFile->seek(ind);
      char color = colorInd;

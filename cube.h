@@ -69,6 +69,9 @@ public:
     int getNCells() const override {return ncells * ncells * 6;}
     void getCellsData(char* buf) const override;
     int notGrayColorsCount() const override;
+#ifdef WIN32
+    bool isCube() const override {return true;}
+#endif
 protected:
 private:
     QVector3D faceCorners[6][4];

@@ -7,16 +7,11 @@ struct Vertex
     Vertex() {}
     Vertex(float _x, float _y, float _z);
     QVector3D vertex;
-    QList <int> edges;
-    QList <int> faces;
 };
 struct Edge
 {
     Edge (int indA, int indB);
     int vertices[2];
-    inline float length() const;
-    QList <int> neighborEdges [2];
-    int faces[2];
     inline bool isEqual(const Edge& e2);
     bool operator == (const Edge& e2)
         {return isEqual(e2);}
@@ -24,14 +19,19 @@ struct Edge
 struct CubeVertexData;
 struct _Face
 {
-    _Face(PolyhedronBase* _parent, int indA, int indB, int indC);
-    const QVector3D& vertex(int ind) const;
-    void fillVertexData(CubeVertexData* buf);
+    _Face(int indA, int indB, int indC);
+    const QVector3D& vertex(PolyhedronBase* parent, int ind) const;
+    void fillVertexData(PolyhedronBase* parent, CubeVertexData* buf);
     QList <uint> vertices;
     ushort color;
-    PolyhedronBase* parent;
 };
-
+#ifdef WIN32
+struct CubicArea
+{
+    int poles[3];
+    QList<int> faces;
+};
+#endif
 class PolyhedronBase : public RotatingFigure
 {
 public:
@@ -79,6 +79,15 @@ public :
 
     int validColorsCount(RotatingFigure *lf) const override;
     int notGrayColorsCount() const override;
+protected:
+#ifdef WIN32
+    CubicArea cubicAreas[8];
+    QList<int> poles;
+    QList<QList<int>> polarFaces;
+    virtual bool hasCubicSymmetry() const {return false;}
+    void getCubicAreas();
+    void getPoles();
+#endif
 private:
     LittlePolyhedron* littlePoly;
     friend class LittlePolyhedron;

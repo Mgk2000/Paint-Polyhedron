@@ -17,7 +17,7 @@ void PolyhedronBase::init()
         faces[i].color = i % 6 +1;*/
 
     for (int i=0; i< faces.length(); i++)
-        faces[i].fillVertexData(vertexData + i*3);
+        faces[i].fillVertexData(this, vertexData + i*3);
 }
 void PolyhedronBase::draw()
 {
@@ -90,12 +90,12 @@ void PolyhedronBase::createFacesFromVertices()
                     bool cw = isClockWise(i,j,k);
                     if (cw)
                     {
-                        _Face f (this, i,k, j);
+                        _Face f (i,k, j);
                         faces.append(f);
                     }
                     else
                     {
-                        _Face f (this, i,j,k);
+                        _Face f (i,j,k);
                         faces.append(f);
                     }
                 }
@@ -193,12 +193,12 @@ void PolyhedronBase::increaseDivision(float maxLen)
                     bool cw = isClockWise(i,j,k);
                     if (cw)
                     {
-                        _Face f (this, i,k, j);
+                        _Face f (i,k, j);
                         faces.append(f);
                     }
                     else
                     {
-                        _Face f (this, i,j,k);
+                        _Face f (i,j,k);
                         faces.append(f);
                     }
 //                    faces[nf-1].color = (i + j + k) % 6 +1;
@@ -340,7 +340,7 @@ void PolyhedronBase::loadVertexInfo()
    faces.reserve(nf);
    for (int i=0; i< nf*3; i+=3)
    {
-       _Face f(this, pf[i], pf[i+1], pf[i+2]);
+       _Face f(pf[i], pf[i+1], pf[i+2]);
         faces.append(f);
    }
 }
@@ -348,7 +348,7 @@ void PolyhedronBase::loadVertexInfo()
 void PolyhedronBase::setFaceColor(uint nf, int iColor)
 {
     faces[nf].color = iColor;
-    faces[nf].fillVertexData(vertexData + nf*3);
+    faces[nf].fillVertexData(this, vertexData + nf*3);
 
 }
 Vertex::Vertex(float _x, float _y, float _z)
@@ -356,30 +356,31 @@ Vertex::Vertex(float _x, float _y, float _z)
     vertex = QVector3D(_x, _y, _z);
 }
 
-_Face::_Face(PolyhedronBase* _parent, int indA, int indB, int indC) : color(0), parent(_parent)
+_Face::_Face(int indA, int indB, int indC) : color(0)
 {
     vertices.append(indA);
     vertices.append(indB);
     vertices.append(indC);
 }
 
-const QVector3D &_Face::vertex(int ind) const
+const QVector3D &_Face::vertex(PolyhedronBase * parent, int ind) const
 {
     return parent->vertices[vertices[ind]].vertex;
 }
 
-void _Face::fillVertexData(CubeVertexData *buf)
+void _Face::fillVertexData(PolyhedronBase* parent , CubeVertexData *buf)
 {
 
-    buf[0].position = vertex(0);
-    buf[1].position = vertex(1);
-    buf[2].position = vertex(2);
+    buf[0].position = vertex(parent, 0);
+    buf[1].position = vertex(parent, 1);
+    buf[2].position = vertex(parent, 2);
     const QVector2D &texCoords = parent->mainWidget->colorSquareTexCoords[color];
     float dt = parent->little? 0.05f: 0;
     buf[0].texCoord = texCoords + QVector2D(dt*2,dt);
     buf[1].texCoord = texCoords+ QVector2D(0.3333f, 0) + QVector2D(-dt,dt);
     buf[2].texCoord = texCoords+ QVector2D(0.333f, 0.3333f)+ QVector2D(-dt,-dt *2);
-    QVector3D n= (QVector3D::crossProduct ( vertex(1) - vertex(0), vertex(2) - vertex(1))).normalized();
+    QVector3D n= (QVector3D::crossProduct ( vertex(parent, 1) - vertex(parent, 0), vertex(parent, 2) -
+                                            vertex(parent, 1))).normalized();
     for (int i =0; i< 3; i++)
         buf[i].normal = n;
 }
@@ -495,8 +496,10 @@ int Polyhedron::pick(int nf, int iColor)
 }
 void Polyhedron::saveMove(int iface, uchar colorInd)
 {
+#ifdef WIN32
     if (mainWidget->gameStartInfo.editor)
         return;
+#endif
      mainWidget->gameStartInfo.currGameFile->seek(iface);
      char color = colorInd;
      mainWidget->gameStartInfo.currGameFile->write(&color,1);
@@ -519,7 +522,56 @@ int Polyhedron::notGrayColorsCount() const
             nc++;
     return nc;
 }
+#ifdef WIN32
+void Polyhedron::getCubicAreas()
+{
+    getPoles();
+}
 
+void Polyhedron::getPoles()
+{
+    int* vertFaces = new int[vertices.count()];
+    poles.clear();
+    polarFaces.clear();
+    int vc = vertices.count();
+    for(int i = 0; i < vc; i++)
+        vertFaces[i] = 0;
+    for (int i =0; i< faces.count(); i++)
+        for (int j = 0; j < faces[i].vertices.count(); j++)
+            vertFaces[faces[i].vertices[j]] ++;
+    for(int i = 0; i < vc; i++)
+        if (vertFaces[i] ==4)
+        {
+            poles.append(i);
+        }
+    for (int i=0; i<poles.count(); i++)
+    {
+        int ind = poles[i];
+        bool found =0;
+        for (int j =0; j< faces.count(); j++)
+            for (int k = 0; k<faces[j].vertices.count(); k++)
+                if(faces[j].vertices[k] == ind)
+                {
+                    if (!found)
+                    {
+                        found = true;
+                        QList<int> l;
+                        polarFaces.append(l);
+                    }
+                    polarFaces[polarFaces.length() -1].append(j);
+                }
+    }
+    for (int i=0; i< poles.count(); i++)
+    {
+        qDebug() << "Pole[" << i << "]=" << vertices[poles[i]].vertex;
+        qDebug() << "polarFaces=" << polarFaces[i].count();
+        for (int j =0; j< polarFaces[i].count(); j++)
+            setFaceColor(polarFaces[i][j], i+1);
+    }
+    needsFullDraw = true;
+    delete[] vertFaces;
+}
+#endif
 LittlePolyhedron::LittlePolyhedron(Polyhedron *bigPoly): PolyhedronBase(nullptr, true)
 {
     vertices= bigPoly->vertices;

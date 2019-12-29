@@ -235,7 +235,7 @@ void MainWindow::startDataGame(int ind, QString unfinished)
     GameStartInfo si(head.ncells, (uchar*)buf, ui->editorCheckBox->isChecked());
     si.type = head.type;
     si.division = head.division;
-    if (si.type !=0)
+    if (si.type !=0 || si.division != 0)
         loadVertexInfo(&si);
     si.playMusic = settings.playMusic;
     si.playSounds = settings.playSounds;
@@ -323,7 +323,7 @@ void MainWindow::on_ncellsOkButton_clicked()
     si.division = ui->divideSpinBox->value();
     si.playMusic = false;
     si.playSounds = false;
-    if (si.type != 0)
+    if (si.type != 0 || si.division !=0)
         loadVertexInfo(&si);
     startGame(si);
     if (si.vertexInfo)

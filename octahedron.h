@@ -6,6 +6,11 @@ class Octahedron : public Polyhedron
 {
 public:
     Octahedron(MainWidget * mw);
+protected:
+#ifdef WIN32
+    bool hasCubicSymmetry() const override {return true;}
+#endif
+
 };
 class LittleOctahedron : public LittlePolyhedron
 {

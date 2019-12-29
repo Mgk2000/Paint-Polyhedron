@@ -78,7 +78,9 @@ struct GameStartInfo
     uchar * data;
     uchar * unfinishedData;
     QFile* currGameFile;
+#ifdef WIN32
     bool editor;
+#endif
     bool playMusic;
     bool playSounds;
     char * vertexInfo;
@@ -97,13 +99,17 @@ public:
     BitmapText* getBitmapText()  {return & _bitmapText;}
     Buttons* getButtons()  {return  buttons;}
     GameStartInfo gameStartInfo;
+#ifdef WIN32
     bool isEditMode() const {return gameStartInfo.editor;}
+#endif
     void startGame();
     void sound(int is);
     //Cube * cube, *littleCube;
     RotatingFigure * figure, *littleFigure;
+#ifdef WIN32
     bool duplicatePending, rotatePending, fillFacePending;
     QTimer saveTimer;
+#endif
     bool isMusicPlaying() const;
     bool isSoundsPlaying() const;
     SoundEffect soundEffect, music;
@@ -145,11 +151,12 @@ private:
     int pickPoint(int mx, int my);
     void drawFigure();
     void drawPalette();
-    bool event1 (QEvent * event);
     void touchEvent(QTouchEvent *ev);
     int lastTouchMsec, nextTouchMsec;
     void initCubeTexture();
+#ifdef WIN32
     void keyPressEvent(QKeyEvent *event) override;
+#endif
     MainWindow* mainWindow;
     void initBitmapTextTexture();
     void initButtonsTexture();
@@ -159,17 +166,21 @@ private:
     void victory();
     bool _victory;
     QDateTime startTime,endTime;
+#ifdef WIN32
     void saveFigureSnap(const QString& fn);
     void rotateToSnap();
     void saveAll();
     void duplicateFace();
     void rotateFace();
+#endif
     void checkValidColors(int where);
     void prepareSounds();
     Buttons *buttons;
 public slots:
     void playMusicChanged();
+#ifdef WIN32
     void saveGame();
+#endif
 };
 
 #endif // MAINWIDGET_H

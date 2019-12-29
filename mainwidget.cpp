@@ -70,8 +70,11 @@ MainWidget::MainWidget(MainWindow *parent, const GameStartInfo & si) :
 //    glengine(nullptr),
     angularSpeed(0), gscale(0.5f),
     cubeTop(0.2f), cubeBottom(0.1f), cubeTexture(nullptr), bitmapTextTexture(nullptr), buttonsTexture(nullptr),
-    mainWindow (parent),gameStartInfo(si),duplicatePending(false),
-    rotatePending(false),fillFacePending(false), figure (nullptr), littleFigure(nullptr)
+    mainWindow (parent),gameStartInfo(si),
+    figure (nullptr), littleFigure(nullptr)
+  #ifdef WIN32
+    ,duplicatePending(false), rotatePending(false),fillFacePending(false)
+  #endif
 
 {
     _palette = new Palette(this);
@@ -92,8 +95,10 @@ MainWidget::MainWidget(MainWindow *parent, const GameStartInfo & si) :
     setAttribute(Qt::WA_AcceptTouchEvents, true);
     connect(buttons,SIGNAL(musicButtonPressed()), this, SLOT(playMusicChanged()));
     prepareSounds();
+#ifdef WIN32
     saveTimer.setInterval(500);
     connect(&saveTimer, SIGNAL(timeout()), this, SLOT(saveGame()));
+#endif
 }
 
 MainWidget::~MainWidget()
@@ -206,21 +211,25 @@ void MainWidget::timerEvent(QTimerEvent *)
     dt.setMSecsSinceEpoch(msecs);
     dt.setOffsetFromUtc(0);
     QString sdt = dt.toString("h:mm:ss");
+#ifdef WIN32
     if (gameStartInfo.editor)
         _bitmapText.setText(sdt + "  "  + QString("%1/%2").arg(figure->notGrayColorsCount()).arg(nTotalColors));
      else
+#endif
         _bitmapText.setText(sdt + "  "  + QString("%1/%2").arg(nValidColors).arg(nTotalColors));
-    if (!isEditMode())
-    {
-    if (angularSpeed < 0.5)
-        angularSpeed = 0.5;
-        needsUpdate = true;
-    }
-    else
+#ifdef WIN32
+    if (isEditMode())
     {
         if (angularSpeed < 0.01)
             angularSpeed = 0.0;
         if (figure->needsCellDraw || figure->needsFullDraw || _palette->needsRedraw || angularSpeed>0)
+            needsUpdate = true;
+    }
+    else
+#endif
+    {
+        if (angularSpeed < 0.5)
+            angularSpeed = 0.5;
             needsUpdate = true;
     }
     if (needsUpdate)
@@ -248,9 +257,12 @@ void MainWidget::startGame()
     if (gameStartInfo.data)
     {
         littleFigure->setData(gameStartInfo.data);
+#ifdef WIN32
         if (gameStartInfo.editor)
             figure->setData(gameStartInfo.data);
-        else if (gameStartInfo.unfinishedData)
+        else
+#endif
+            if (gameStartInfo.unfinishedData)
         {
             figure->setData(gameStartInfo.unfinishedData);
             delete[] gameStartInfo.unfinishedData;
@@ -503,8 +515,10 @@ void MainWidget::drawButtons()
 }
 void MainWidget::victory()
 {
+#ifdef WIN32
     if (gameStartInfo.editor)
         return;
+#endif
     endTime = QDateTime::currentDateTime();
     _victory = true;
     gameStartInfo.currGameFile->close();
@@ -514,30 +528,14 @@ void MainWidget::victory()
     music.stop();
     sound(2);
 }
-
+#ifdef WIN32
 void MainWidget::rotateToSnap()
 {
     rotation = QQuaternion(0.9262, -0.28875, -0.24218,0.00065);
     gameStartInfo.editor = true;
     update();
 }
-
-bool MainWidget::event1(QEvent *event)
-{
-    QEvent::Type et =event->type();
-    switch (et)
-    {
-    case QEvent::TouchBegin:
-    case QEvent::TouchCancel:
-    case QEvent::TouchEnd:
-    case QEvent::TouchUpdate:
-        touchEvent((QTouchEvent *)event);
-        return true;
-    default:  break;
-    }
-    return QOpenGLWidget::event(event);
-}
-
+#endif
 void MainWidget::touchEvent(QTouchEvent *ev)
 {
     int n = ev->touchPoints().size();
@@ -603,44 +601,7 @@ void MainWidget::initButtonsTexture()
     buttonsTexture->setMagnificationFilter(QOpenGLTexture::LinearMipMapLinear);
     buttonsTexture->setWrapMode(QOpenGLTexture::Repeat);
 }
-void MainWidget::keyPressEvent(QKeyEvent *event)
-{
-    if (_victory)
-        return;
-    int k = event->key();
-//    qDebug() << "Pressed=" << k;
-    switch(k)
-    {
-        case 16777264:  //F1
-            rotateToSnap(); break;
-        case 16777265:    //F2
-            this->saveFigureSnap("shapes/cube.png"); break;
-        case  16777266:   //F3
-            {fillFacePending = true; break;}
-        case  16777267:   //F4
-            {duplicateFace(); break;}
-        case  16777268:   //F5
-            {rotateFace(); break;}
-        case  16777269:   //F6
-            {saveAll(); break;}
-        case  16777270:   //F7
-            {saveGame(); break;}
-        case 16777313 : // android back button
-        {
-        hide();
-        mainWindow->show();
-        break;
-        }
-    }
-}
-void MainWidget::duplicateFace()
-{
-    duplicatePending = true;
-}
-void MainWidget::rotateFace()
-{
-    rotatePending = true;
-}
+
 
 void MainWidget::checkValidColors(int where)
 {
@@ -650,14 +611,13 @@ void MainWidget::checkValidColors(int where)
         qDebug() << "checkValidColors error where=" << where << " vc=" << vc << " nValidColors=" << nValidColors;
     nValidColors = vc;
 }
-void MainWidget::saveAll()
-{
-    rotateToSnap();
-    saveTimer.start();
-}
 
 GameStartInfo::GameStartInfo(int _ncells, uchar *_data, bool _editor) : ncells(_ncells),
-    data(_data), editor(_editor), vertexInfo(nullptr)
+    data(_data)
+  #ifdef WIN32
+  , editor(_editor)
+  #endif
+  , vertexInfo(nullptr)
 {
 
 }

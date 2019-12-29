@@ -1,3 +1,4 @@
+#ifdef WIN32
 #include <QImage>
 #include <QFile>
 #include <QDir>
@@ -36,7 +37,6 @@ void MainWidget::saveGame()
    shapeFile.close();
    saveFigureSnap(fn + ".png");
 }
-
 void MainWidget::saveFigureSnap(const QString& fn )
 {
     int w = width();
@@ -49,4 +49,50 @@ void MainWidget::saveFigureSnap(const QString& fn )
     im.save(fn);
 
 }
+void MainWidget::saveAll()
+{
+    rotateToSnap();
+    saveTimer.start();
+}
+void MainWidget::duplicateFace()
+{
+    duplicatePending = true;
+}
+void MainWidget::rotateFace()
+{
+    rotatePending = true;
+}
+void MainWidget::keyPressEvent(QKeyEvent *event)
+{
+    if (_victory)
+        return;
+    int k = event->key();
+//    qDebug() << "Pressed=" << k;
+    switch(k)
+    {
+        case 16777264:  //F1
+            rotateToSnap(); break;
+        case 16777265:    //F2
+            this->saveFigureSnap("shapes/cube.png"); break;
+        case  16777266:   //F3
+            {fillFacePending = true; break;}
+        case  16777267:   //F4
+            {duplicateFace(); break;}
+        case  16777268:   //F5
+            {rotateFace(); break;}
+        case  16777269:   //F6
+            {saveAll(); break;}
+        case  16777270:   //F7
+            {saveGame(); break;}
+        case  16777271:   //F8
+        {figure->getCubicAreas(); break;}
+        case 16777313 : // android back button
+        {
+        hide();
+        mainWindow->show();
+        break;
+        }
+    }
+}
 
+#endif

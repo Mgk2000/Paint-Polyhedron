@@ -15,6 +15,10 @@ public:
     virtual int getNCells() const =0;
     virtual void getCellsData(char* buf) const =0;
     virtual int notGrayColorsCount() const {return 0;}
+#ifdef WIN32
+    virtual bool isCube() const {return false;}
+    virtual void getCubicAreas() {}
+#endif
     bool needsCellDraw;
     bool needsFullDraw;
 protected:
