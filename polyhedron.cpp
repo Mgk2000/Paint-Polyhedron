@@ -454,13 +454,20 @@ int Polyhedron::pick(float mx, float my, int icolor)
                      }
                  }
                  int nearInd = facez[0] < facez[1] ? 0 : 1;
-                 int farInd = 1- nearInd;
+#ifdef WIN32
+                 int indf = pickFaces[nearInd];
+                 for(int ii = 0; ii<3; ii++)
+                     qDebug() << vertices[faces[indf].vertices[ii]].vertex;
+#endif
+//                 int farInd = 1- nearInd;
                  ret = pick (pickFaces[nearInd], icolor);
+                     goto ret;
 //                 qDebug() << "Near face =" << pickFaces[nearInd] << "Color=" << faces[pickFaces[nearInd]].color;
 //                 qDebug() << "Far face =" << pickFaces[farInd] << "Color=" << faces[pickFaces[farInd]].color;
              }
          }
     }
+ret:
     delete[] rotatedVertices;
     delete[] pointExists;
     return ret;
