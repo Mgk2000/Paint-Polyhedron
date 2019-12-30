@@ -13,7 +13,12 @@ varying vec2 v_texcoord;
 varying vec3 v_normal;
 void main()
 {
-    gl_Position = mvp_matrix * a_position;
+    vec4 mposition = a_position;
+    mposition = mvp_matrix * mposition;
+//    mposition.x = mposition.x*2;
+//    mposition.y = mposition.y*2;
+//    mposition.z = mposition.z+0.8;
+    gl_Position = mposition;
     v_normal = normal_matrix * a_normal;
     v_texcoord = a_texcoord;
 }

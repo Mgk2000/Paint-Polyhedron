@@ -4,7 +4,7 @@ CONFIG     += debug
 CONFIG += qt warn_on rtti exceptions
 TARGET = Paint-Polyhedron
 TEMPLATE = app
-# LIBS    += -lqjson
+#LIBS += -lOpengl32
 SOURCES += main.cpp \
     bitmaptext.cpp \
     buttons.cpp \

@@ -50,6 +50,7 @@
 
 #include "mainwidget.h"
 
+#include <QGestureEvent>
 #include <QMouseEvent>
 #include <QTime>
 //#include <GL/glu.h>
@@ -98,6 +99,14 @@ MainWidget::MainWidget(MainWindow *parent, const GameStartInfo & si) :
 #ifdef WIN32
     saveTimer.setInterval(500);
     connect(&saveTimer, SIGNAL(timeout()), this, SLOT(saveGame()));
+#else
+    QVector<Qt::GestureType> gestures;
+//        gestures << Qt::PanGesture;
+        gestures << Qt::PinchGesture;
+//        gestures << Qt::SwipeGesture;
+
+    for (Qt::GestureType gesture : gestures)
+            grabGesture(gesture);
 #endif
 }
 
@@ -170,12 +179,10 @@ void MainWidget::mousePressEvent(QMouseEvent *e)
     }
     mousePressPosition = QVector2D(e->localPos());
 
-//     QVector3D glpos = geometries->GetOGLPos(x, y);
- //   qDebug() << glpos.x() << glpos.y() << glpos.z();
-    nValidColors += pickPoint(x,y);
+/*    nValidColors += pickPoint(x,y);
     checkValidColors(1);
     if (nValidColors == nTotalColors)
-        victory();
+        victory();*/
 }
 
 void MainWidget::mouseReleaseEvent(QMouseEvent *e)
@@ -185,6 +192,20 @@ void MainWidget::mouseReleaseEvent(QMouseEvent *e)
     if (mousePressPosition.x() <0)
         return;
     QVector2D diff =-( QVector2D(e->localPos()) - mousePressPosition);
+    //qDebug() << "Diff=" << diff.length()/width();
+    if (diff.length()/width() < 0.01)
+    {
+        int x = e->x();
+        int y = e->y();
+        if (cubeViewport.contains(x,y))
+        {
+            nValidColors += pickPoint(x,y);
+            checkValidColors(1);
+            if (nValidColors == nTotalColors)
+                victory();
+            return;
+        }
+    }
 
     // Rotation axis is perpendicular to the mouse position difference
     // vector
@@ -230,7 +251,8 @@ void MainWidget::timerEvent(QTimerEvent *)
     {
         if (angularSpeed < minAngularSpeed)
             angularSpeed = minAngularSpeed;
-            needsUpdate = true;
+
+        needsUpdate = true;
     }
     if (needsUpdate)
     {
@@ -244,6 +266,13 @@ void MainWidget::timerEvent(QTimerEvent *)
             hide();
             mainWindow->show();
         }
+}
+
+bool MainWidget::event(QEvent *event)
+{
+    if (event->type() == QEvent::Gesture)
+        return gestureEvent(static_cast<QGestureEvent*>(event));
+    return QWidget::event(event);
 }
 void MainWidget::startGame()
 {
@@ -455,7 +484,10 @@ int MainWidget::pickPoint(int mx, int my)
 }
 void MainWidget::resizeGL(int w, int h)
 {
-    calcViewports();
+    projection.setToIdentity();
+    //projection.perspective(45.0f, GLfloat(w) / h, 0.01f, 100.0f);
+    projection.ortho(-1 ,1,-1,1,100,-100);
+     calcViewports();
 }
 
 void MainWidget::paintGL()
@@ -463,7 +495,6 @@ void MainWidget::paintGL()
     QElapsedTimer timer;
         timer.start();
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
     checkValidColors(3);
     cubeTexture->bind();
     program()->bind();
@@ -479,6 +510,42 @@ void MainWidget::paintGL()
      qDebug() << "paintGL" << ms << "milliseconds";
 }
 
+bool MainWidget::gestureEvent(QGestureEvent *event)
+{
+//    qDebug() << "gestureEvent():" << event;
+    //QList<QGesture *> gestures = event->gestures();
+    //for (int i=0; i< gestures.count(); i++)
+        //qDebug() << gestures[i]->gestureType();
+   if (QGesture *pinch = event->gesture(Qt::PinchGesture))
+            pinchTriggered(static_cast<QPinchGesture *>(pinch));
+    return true;
+}
+void MainWidget::pinchTriggered(QPinchGesture *gesture)
+{
+    QPinchGesture::ChangeFlags changeFlags = gesture->changeFlags();
+    if (changeFlags & QPinchGesture::RotationAngleChanged) {
+ /*       qreal rotationDelta = gesture->rotationAngle() - gesture->lastRotationAngle();
+        rotationAngle += rotationDelta;
+        qCDebug(lcExample) << "pinchTriggered(): rotate by" <<
+            rotationDelta << "->" << rotationAngle;*/
+    }
+    if (changeFlags & QPinchGesture::ScaleFactorChanged) {
+        float currentStepScaleFactor = gesture->totalScaleFactor();
+        qDebug() << "pinchTriggered(): zoom by" <<
+            gesture->scaleFactor() << "->" << currentStepScaleFactor;
+        gscale = 0.5 * qSqrt(currentStepScaleFactor);
+        if (gscale > 1.0)
+            gscale = 1.0;
+        if (gscale < 0.5)
+            gscale = 0.5;
+        qDebug() << "gscale =" << gscale;
+    }
+    if (gesture->state() == Qt::GestureFinished) {
+ /*       scaleFactor *= currentStepScaleFactor;
+        currentStepScaleFactor = 1;*/
+    }
+    update();
+}
 void MainWidget::closeEvent(QCloseEvent *event)
 {
     event->ignore();
@@ -490,7 +557,6 @@ void MainWidget::drawFigure()
 {
     glViewport(cubeViewport.left(),height() -cubeViewport.bottom(),cubeViewport.width(),cubeViewport.height());
    // glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
     matrix.setToIdentity();
     matrix.rotate(rotation);
     matrix.scale(gscale,gscale,gscale);

@@ -86,6 +86,8 @@ struct GameStartInfo
     char * vertexInfo;
 };
 class Buttons;
+class QGestureEvent;
+class QPinchGesture;
 class MainWidget : public QOpenGLWidget, protected QOpenGLFunctions
 {
     Q_OBJECT
@@ -121,10 +123,11 @@ protected:
     void mousePressEvent(QMouseEvent *e) override;
     void mouseReleaseEvent(QMouseEvent *e) override;
     void timerEvent(QTimerEvent *e) override;
-
+    bool event(QEvent *event) override;
     void initializeGL() override;
     void resizeGL(int w, int h) override;
     void paintGL() override;
+    bool gestureEvent(QGestureEvent *event);
     virtual void  closeEvent(QCloseEvent *event) override;
     void initShaders();
 private:
@@ -177,6 +180,7 @@ private:
     void checkValidColors(int where);
     void prepareSounds();
     Buttons *buttons;
+    void pinchTriggered(QPinchGesture *gesture);
 public slots:
     void playMusicChanged();
 #ifdef WIN32

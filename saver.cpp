@@ -67,9 +67,13 @@ void MainWidget::keyPressEvent(QKeyEvent *event)
     if (_victory)
         return;
     int k = event->key();
-//    qDebug() << "Pressed=" << k;
+    qDebug() << "Pressed=" << k;
     switch(k)
     {
+        case 45:  //minus
+            gscale = gscale /1.2; qDebug() << "Scale=" << gscale; break;
+        case 43:  //plus
+            gscale = gscale *1.2;  qDebug() << "Scale=" << gscale;break;
         case 16777264:  //F1
             rotateToSnap(); break;
         case 16777265:    //F2
