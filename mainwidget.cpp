@@ -191,7 +191,7 @@ void MainWidget::mouseReleaseEvent(QMouseEvent *e)
     QVector3D n = QVector3D(diff.y(), diff.x(), 0.0).normalized();
 
     // Accelerate angular speed relative to the length of the mouse sweep
-    qreal acc = 5 * diff.length() / 100.0;
+    qreal acc = 2 * diff.length() / 100.0;
 
     // Calculate new rotation axis as weighted sum
     rotationAxis = (rotationAxis * angularSpeed + n * acc).normalized();
@@ -228,8 +228,8 @@ void MainWidget::timerEvent(QTimerEvent *)
     else
 #endif
     {
-        if (angularSpeed < 0.5)
-            angularSpeed = 0.5;
+        if (angularSpeed < minAngularSpeed)
+            angularSpeed = minAngularSpeed;
             needsUpdate = true;
     }
     if (needsUpdate)
@@ -269,6 +269,7 @@ void MainWidget::startGame()
         }
         //delete[] gameStartInfo.data;
     }
+    minAngularSpeed = nTotalColors < 800 ? 0.5 : 0.2;
     nValidColors = figure->validColorsCount(littleFigure);
     //checkValidColors(2);
     _palette->fillData();
@@ -361,6 +362,16 @@ void MainWidget::createFigure()
     {
         figure = new Tetrahedron(this);
         littleFigure = new LittleTetrahedron((Tetrahedron*)figure);
+    }
+    else if (gameStartInfo.type == 4)
+    {
+        figure = new Octahedron(this, true);
+        littleFigure = new LittleOctahedron((Octahedron*)figure);
+    }
+    else if (gameStartInfo.type == 5)
+    {
+        figure = new Cuboid(this, true);
+        littleFigure = new LittleCuboid((Cuboid*)figure);
     }
     else
     {

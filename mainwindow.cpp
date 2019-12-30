@@ -62,8 +62,13 @@ int MainWindow::indFromNo(int fno) const
 
 void MainWindow::loadVertexInfo(GameStartInfo * si)
 {
-    QString vfs = QString(projectDir + "/settings/%1_%2.vert").
-            arg(si->type).arg(si->division);
+    QString ds;
+#ifdef WIN32
+    ds = projectDir + "/settings/%1_%2.vert";
+#else
+    ds  = ":/settings/%1_%2.vert";
+#endif
+    QString vfs = ds.arg(si->type).arg(si->division);
     QFile f (vfs);
     if (f.exists())
     {
@@ -428,8 +433,8 @@ void MainWindow::on_dataFilesView_clicked(const QModelIndex &index)
    if (ind >= dataFiles.length())
        return ;
 #ifndef WIN32
-   if (levelIsLocked(ind))
-       return;
+//   if (levelIsLocked(ind))
+//       return;
 #endif
    if (currGameFile.isOpen())
        currGameFile.close();

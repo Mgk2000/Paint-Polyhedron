@@ -68,6 +68,7 @@ protected:
     void createFacesFromVertices();
     void createEdgesFromFaces();
     bool edgeExists(int iA, int iB);
+    void divide3();
 };
 class LittlePolyhedron;
 class Polyhedron: public PolyhedronBase

@@ -2,7 +2,7 @@
 #include "cube.h"
 #include <QtMath>
 
-Cuboid::Cuboid(MainWidget * mw): Polyhedron (mw)
+Cuboid::Cuboid(MainWidget * mw, bool div3): Polyhedron (mw)
 
 {
     if (mainWidget->gameStartInfo.vertexInfo)
@@ -30,10 +30,16 @@ Cuboid::Cuboid(MainWidget * mw): Polyhedron (mw)
     vertices.append(Vertex( 0, 0, r3));   //13
     for (int i =0; i< vertices.count(); i++)
         vertices[i].vertex = vertices[i].vertex * radius;
-
     createFacesFromVertices();
     createEdgesFromFaces();
-    setDivision(mainWidget->gameStartInfo.division-1);
+    int div = mainWidget->gameStartInfo.division-1;
+    if (div3)
+    {
+        divide3();
+        if (div)
+        div--;
+    }
+    setDivision(div);
     saveVertexInfo();
     vertexData = new CubeVertexData[faces.length()* 3];
 }

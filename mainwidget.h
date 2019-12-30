@@ -166,6 +166,7 @@ private:
     void victory();
     bool _victory;
     QDateTime startTime,endTime;
+    qreal minAngularSpeed;
 #ifdef WIN32
     void saveFigureSnap(const QString& fn);
     void rotateToSnap();

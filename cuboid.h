@@ -5,7 +5,7 @@
 class Cuboid: public Polyhedron
 {
 public:
-    Cuboid(MainWidget * mw);
+    Cuboid(MainWidget * mw, bool div3 = false);
 protected:
 #ifdef WIN32
     bool hasCubicSymmetry() const override {return true;}

@@ -11,5 +11,31 @@
         <file>staticFshader.glsl</file>
         <file>colorVshader.glsl</file>
         <file>images/cube512.png</file>
+        <file>settings/0_1.vert</file>
+        <file>settings/0_2.vert</file>
+        <file>settings/0_3.vert</file>
+        <file>settings/0_4.vert</file>
+        <file>settings/1_0.vert</file>
+        <file>settings/1_1.vert</file>
+        <file>settings/1_2.vert</file>
+        <file>settings/1_3.vert</file>
+        <file>settings/1_4.vert</file>
+        <file>settings/1_5.vert</file>
+        <file>settings/1_6.vert</file>
+        <file>settings/2_0.vert</file>
+        <file>settings/2_1.vert</file>
+        <file>settings/2_2.vert</file>
+        <file>settings/2_3.vert</file>
+        <file>settings/3_1.vert</file>
+        <file>settings/3_2.vert</file>
+        <file>settings/3_3.vert</file>
+        <file>settings/3_4.vert</file>
+        <file>settings/4_0.vert</file>
+        <file>settings/4_1.vert</file>
+        <file>settings/4_2.vert</file>
+        <file>settings/4_3.vert</file>
+        <file>settings/5_1.vert</file>
+        <file>settings/5_2.vert</file>
+        <file>settings/5_3.vert</file>
     </qresource>
 </RCC>

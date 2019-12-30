@@ -82,6 +82,7 @@ void PolyhedronBase::initGL(QOpenGLShaderProgram *prog)
 }
 void PolyhedronBase::createFacesFromVertices()
 {
+    faces.clear();
     for (int i =0; i< vertices.length()-2; i++)
         for (int j = i+1; j< vertices.length()-1; j++)
             for (int k = j+1; k< vertices.length(); k++)
@@ -121,6 +122,30 @@ bool PolyhedronBase::edgeExists(int iA, int iB)
             return true;
     return false;
 }
+
+void PolyhedronBase::divide3()
+{
+    float r = vertices[0].vertex.length();
+    for (int i=0; i< edges.length(); i++)
+    {
+        QVector3D &v0 = vertices[edges[i].vertices[0]].vertex;
+        QVector3D &v1 = vertices[edges[i].vertices[1]].vertex;
+        QVector3D av = (v0*2 + v1).normalized() * r;
+        vertices.append(Vertex(av.x(), av.y(), av.z()));
+        av = (v0 + v1 * 2).normalized() * r;
+        vertices.append(Vertex(av.x(), av.y(), av.z()));
+    }
+    for (int i=0; i< faces.length(); i++)
+    {
+        QVector3D &v0 = vertices[faces[i].vertices[0]].vertex;
+        QVector3D &v1 = vertices[faces[i].vertices[1]].vertex;
+        QVector3D &v2 = vertices[faces[i].vertices[2]].vertex;
+        QVector3D av  = (v0  + v1 + v2).normalized() * r;
+        vertices.append(Vertex(av.x(), av.y(), av.z()));
+    }
+    createFacesFromVertices();
+    createEdgesFromFaces();
+}
 void PolyhedronBase::setDivision(int div)
 {
 /*    int nf =0;
@@ -130,10 +155,10 @@ void PolyhedronBase::setDivision(int div)
                 if (isTriangleFace(i, j ,k))
                     nf ++;
     qDebug() << "Faces=" << nf;*/
-    float maxLen =10* radius;
+    float maxLen = radius;
     for (int i =0; i<  div; i++)
     {
-        increaseDivision(maxLen * 1.9);
+        increaseDivision(maxLen * 0.8);
         maxLen =0;
         for (int j =0; j< edges.count(); j++)
         {

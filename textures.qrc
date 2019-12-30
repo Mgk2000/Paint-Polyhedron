@@ -211,5 +211,11 @@
         <file>shapes/101.png</file>
         <file>shapes/103.dat</file>
         <file>shapes/103.png</file>
+        <file>shapes/102.dat</file>
+        <file>shapes/102.png</file>
+        <file>shapes/104.dat</file>
+        <file>shapes/104.png</file>
+        <file>shapes/105.dat</file>
+        <file>shapes/105.png</file>
     </qresource>
 </RCC>

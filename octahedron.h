@@ -5,7 +5,7 @@
 class Octahedron : public Polyhedron
 {
 public:
-    Octahedron(MainWidget * mw);
+    Octahedron(MainWidget * mw, bool div3 = false);
 protected:
 #ifdef WIN32
     bool hasCubicSymmetry() const override {return true;}
