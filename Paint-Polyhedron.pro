@@ -54,6 +54,7 @@ INSTALLS += target
 
 QMAKE_CXXFLAGS += "-Wno-old-style-cast"
 QMAKE_CXXFLAGS += "-Wno-conversion"
+QMAKE_CXXFLAGS += "-Wno-reorder"
 
 FORMS += \
     mainwindow.ui
@@ -71,4 +72,16 @@ DISTFILES += \
     android-sources/gradle/wrapper/gradle-wrapper.properties \
     android-sources/gradlew \
     android-sources/gradlew.bat \
-    android-sources/res/values/libs.xml
+    android-sources/res/values/libs.xml \
+    android64/AndroidManifest.xml \
+    android64/build.gradle \
+    android64/gradle/wrapper/gradle-wrapper.jar \
+    android64/gradle/wrapper/gradle-wrapper.properties \
+    android64/gradlew \
+    android64/gradlew.bat \
+    android64/res/values/libs.xml
+
+contains(ANDROID_TARGET_ARCH,arm64-v8a) {
+    ANDROID_PACKAGE_SOURCE_DIR = \
+        $$PWD/android64
+}

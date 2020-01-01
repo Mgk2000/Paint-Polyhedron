@@ -8,14 +8,13 @@ struct Vertex
     Vertex(float _x, float _y, float _z);
     QVector3D vertex;
 };
+#ifdef WIN32
 struct Edge
 {
     Edge (int indA, int indB);
     int vertices[2];
-    inline bool isEqual(const Edge& e2);
-    bool operator == (const Edge& e2)
-        {return isEqual(e2);}
 };
+#endif
 struct CubeVertexData;
 struct _Face
 {
@@ -55,20 +54,25 @@ protected:
     float inline edgeLength(int i);
     void setNcells(int nc);
     QList <Vertex> vertices;
+#ifdef WIN32
     QList <Edge> edges;
+#endif
     QList <_Face> faces;
     int nElements() const;
     CubeVertexData* vertexData;
     float radius;
     friend struct _Face;
     int selIndex;
+#ifdef WIN32
     void saveVertexInfo();
+#endif
     void loadVertexInfo();
     void setFaceColor(uint nf, int iColor);
+#ifdef WIN32
     void createFacesFromVertices();
     void createEdgesFromFaces();
-    bool edgeExists(int iA, int iB);
     void divide3();
+#endif
 };
 class LittlePolyhedron;
 class Polyhedron: public PolyhedronBase

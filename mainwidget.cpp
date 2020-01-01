@@ -131,11 +131,6 @@ void MainWidget::show()
 //    qDebug() << "I am MainWidget::show()--after QOpenGLWidget::show()--------------";
 }
 
-void MainWidget::showEvent(QShowEvent *event)
-{
-//    qDebug() << "I am showEvent()---------------";
-
-}
 void MainWidget::prepareSounds()
 {
    soundEffect.addSound("bad.wav", 1.0f);
@@ -437,18 +432,6 @@ QString MainWidget::projectDir() const
     return mainWindow->projectDir;
 }
 
-QVector3D MainWidget::winFromGl(const QVector3D &v, int w, float) const
-{
-    QVector3D res;
-    float xx = v.x() * cubeViewport.width() / 2.0;
-    float xxx = cubeViewport.center().x() + xx;
-    float yy = (2.0-v.y()) * cubeViewport.width() / 2.0;
-    float yyy = cubeViewport.center().y() + yy;
-    res.setX (xxx);
-    res.setY (yyy);
-    return res;
-}
-
 void MainWidget::calcViewports()
 {
     float h = height() * (1- cubeTop - cubeBottom);
@@ -482,7 +465,7 @@ int MainWidget::pickPoint(int mx, int my)
     QVector3D mv = winToGl(QVector3D(mx, my, 0));
     return figure->pick(mv.x(), mv.y(), _palette->selColor);
 }
-void MainWidget::resizeGL(int w, int h)
+void MainWidget::resizeGL(int , int )
 {
     projection.setToIdentity();
     //projection.perspective(45.0f, GLfloat(w) / h, 0.01f, 100.0f);

@@ -4,10 +4,8 @@
 Palette::Palette(MainWidget* mw) : DrawingObject() ,
     needsRedraw(false), selColor(0), dw(3), mainWidget(mw)
 {
-    extern  QVector4D gameColors[];
     for (int i =0; i<6; i++)
             buttons[i].colorInd = i+1;
-
 }
 
 Palette::~Palette()

@@ -11,7 +11,7 @@ public:
     virtual ~RotatingFigure();
     virtual void init() =0;
     virtual void setData(const uchar* data) = 0;
-    virtual int validColorsCount (RotatingFigure* lf) const {return 0;}
+    virtual int validColorsCount (RotatingFigure* ) const {return 0;}
     virtual int getNCells() const =0;
     virtual void getCellsData(char* buf) const =0;
     virtual int notGrayColorsCount() const {return 0;}

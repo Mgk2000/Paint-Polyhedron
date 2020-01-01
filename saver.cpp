@@ -77,7 +77,7 @@ void MainWidget::keyPressEvent(QKeyEvent *event)
         case 16777264:  //F1
             rotateToSnap(); break;
         case 16777265:    //F2
-            this->saveFigureSnap("shapes/cube.png"); break;
+            this->saveFigureSnap(QString(mainWindow->projectDir +"/shapes/%1.png").arg(gameStartInfo.fileNo)); break;
         case  16777266:   //F3
             {fillFacePending = true; break;}
         case  16777267:   //F4
@@ -90,6 +90,8 @@ void MainWidget::keyPressEvent(QKeyEvent *event)
             {saveGame(); break;}
         case  16777271:   //F8
         {figure->getCubicAreas(); break;}
+        case  16777272:   //F9
+            minAngularSpeed = 0; break;
         case 16777313 : // android back button
         {
         hide();

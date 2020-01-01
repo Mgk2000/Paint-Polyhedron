@@ -167,7 +167,7 @@ int Cube::pick(float mx, float my, int icolor)
             {
                 float newZ = 0;
                 for (int j=0; j<4; j++)
-                    newZ = newZ + corners[j].z();
+                {newZ = newZ + corners[j].z();}
                     if (newZ < saveZ)
                     {
 //                        qDebug() << "mv=" << mv.x() << mv.y() <<

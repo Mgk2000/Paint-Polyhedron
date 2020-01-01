@@ -9,6 +9,7 @@ Octahedron::Octahedron(MainWidget * mw, bool div3) : Polyhedron (mw)
         vertexData = new CubeVertexData[faces.length()* 3];
         return;
     }
+#ifdef WIN32
     radius = 1.7f;
     Vertex v0(0,0,-1);
     vertices.append(v0);
@@ -76,6 +77,7 @@ Octahedron::Octahedron(MainWidget * mw, bool div3) : Polyhedron (mw)
     setDivision(div);
     saveVertexInfo();
     vertexData = new CubeVertexData[faces.length()* 3];
+#endif
 }
 
 LittleOctahedron::LittleOctahedron(Octahedron *bigOct): LittlePolyhedron(bigOct)

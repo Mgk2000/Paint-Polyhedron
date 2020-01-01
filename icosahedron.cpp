@@ -8,7 +8,9 @@ Icosahedron::Icosahedron(MainWidget *mw): Polyhedron (mw)
         loadVertexInfo();
         vertexData = new CubeVertexData[faces.length()* 3];
         return;
-    }    radius = 1.6;
+    }
+    radius = 1.6;
+#ifdef WIN32
     vertices.append(Vertex(0.809f, 0.5f, 0.588f));
     vertices.append(Vertex(0.309f, -0.5f, 0.951f));
     vertices.append(Vertex(-0.309f, 0.5f, 0.951f));
@@ -28,6 +30,7 @@ Icosahedron::Icosahedron(MainWidget *mw): Polyhedron (mw)
     setDivision(mainWidget->gameStartInfo.division);
     saveVertexInfo();
     vertexData = new CubeVertexData[faces.length()* 3];
+#endif
 
 }
 

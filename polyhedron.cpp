@@ -71,7 +71,7 @@ void PolyhedronBase::fillData()
 
 }
 
-int PolyhedronBase::validColorsCount(RotatingFigure *lf) const
+int PolyhedronBase::validColorsCount(RotatingFigure *) const
 {
     return 0;
 }
@@ -80,6 +80,7 @@ void PolyhedronBase::initGL(QOpenGLShaderProgram *prog)
 {
     DrawingObject::initGL(prog,1);
 }
+#ifdef WIN32
 void PolyhedronBase::createFacesFromVertices()
 {
     faces.clear();
@@ -110,17 +111,9 @@ void PolyhedronBase::createEdgesFromFaces()
         {
             int iA = faces[i].vertices[j];
             int iB = faces[i].vertices[(j+1) %3];
-            if (!edgeExists(iA, iB))
+            if (!isEdgeExists(iA, iB))
                   edges.append(Edge(iA, iB));
         }
-}
-
-bool PolyhedronBase::edgeExists(int iA, int iB)
-{
-    for (int i=0; i< edges.count(); i++)
-        if (Edge(iA, iB) == edges[i])
-            return true;
-    return false;
 }
 
 void PolyhedronBase::divide3()
@@ -240,13 +233,13 @@ void PolyhedronBase::increaseDivision(float maxLen)
             }
         }
 }
-
+#endif
 void PolyhedronBase::getCellsData(char *buf) const
 {
     for (int i = 0 ; i< faces.length(); i++)
         buf[i] = faces[i].color;
 }
-
+#ifdef WIN32
 bool PolyhedronBase::isTriangleFace(int iA, int iB, int iC) const
 {
     QVector3D AB =  vertices[iB].vertex - vertices[iA].vertex;
@@ -296,7 +289,8 @@ bool PolyhedronBase::isClockWise(int i, int j, int k) const
     float p = QVector3D::dotProduct(vertices[i].vertex, n);
     return p>0;
 }
-void PolyhedronBase::setNcells(int nc)
+#endif
+void PolyhedronBase::setNcells(int)
 {
 
 }
@@ -305,7 +299,7 @@ int PolyhedronBase::nElements() const
 {
     return faces.count() * 3;
 }
-
+#ifdef WIN32
 void PolyhedronBase::saveVertexInfo()
 {
     int fsize = sizeof(int) * 2 +
@@ -348,7 +342,7 @@ void PolyhedronBase::saveVertexInfo()
    delete[] obuf;
 
 }
-
+#endif
 void PolyhedronBase::loadVertexInfo()
 {
     char * buf = mainWidget->gameStartInfo.vertexInfo;
@@ -409,19 +403,11 @@ void _Face::fillVertexData(PolyhedronBase* parent , CubeVertexData *buf)
     for (int i =0; i< 3; i++)
         buf[i].normal = n;
 }
-
+#ifdef WIN32
 Edge::Edge(int indA, int indB)
 {
     vertices[0] = indA;
     vertices[1] = indB;
-}
-
-bool Edge::isEqual(const Edge &e2)
-{
-    return (vertices[0] == e2.vertices[0] &&
-            vertices[1] == e2.vertices[1]) ||
-            (vertices[0] == e2.vertices[1] &&
-            vertices[1] == e2.vertices[0]);
 }
 
 float PolyhedronBase::edgeLength(int i)
@@ -430,7 +416,7 @@ float PolyhedronBase::edgeLength(int i)
     int i1 = edges[i].vertices[1];
     return (vertices[i0].vertex - vertices[i1].vertex).length();
 }
-
+#endif
 
 Polyhedron::Polyhedron(MainWidget *mw) : PolyhedronBase(mw, false)
 {
@@ -582,7 +568,7 @@ void Polyhedron::getPoles()
         bool found =0;
         for (int j =0; j< faces.count(); j++)
             for (int k = 0; k<faces[j].vertices.count(); k++)
-                if(faces[j].vertices[k] == ind)
+                if(faces[j].vertices[k] == (uint)ind)
                 {
                     if (!found)
                     {
@@ -607,7 +593,9 @@ void Polyhedron::getPoles()
 LittlePolyhedron::LittlePolyhedron(Polyhedron *bigPoly): PolyhedronBase(nullptr, true)
 {
     vertices= bigPoly->vertices;
-    edges = bigPoly->edges;
+//#ifdef WIN32
+//    edges = bigPoly->edges;
+//#endif
     int nf = bigPoly->faces.length();
     faces.reserve(nf);
     for (int i =0; i< nf; i++)

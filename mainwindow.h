@@ -80,7 +80,9 @@ public:
     bool levelIsLocked(int i) const;
     bool levelIsDone(int i) const;
 private slots:
+#ifdef WIN32
     void on_ncellsOkButton_clicked();
+#endif
     void on_dataFilesView_clicked(const QModelIndex &index);
 
 private:
@@ -94,6 +96,9 @@ private:
     int maxLevel, currMaxLevel;
     int indFromNo(int fno) const;
     void loadVertexInfo(GameStartInfo*);
+#ifdef WIN32
+    void CheckFilesIntegrity();
+#endif
 public slots:
     void applicationStateChanged(Qt::ApplicationState state);
 };

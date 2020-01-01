@@ -238,11 +238,10 @@ void BitmapText::fillVertexData(VertexData *buf)
 
     float w = 1.3/nl;
     wchar_t wtext[100];
-    int tl = text.toWCharArray(wtext);
+    /*int tl = */text.toWCharArray(wtext);
     float left = -1.0f;
     for (int i =0; i<nl; i++)
     {
-        int nnn = letters.count(wtext[i]);
         if (letters.count(wtext[i]) != 0)
         {
            addLetterData(buf+6*i, wtext[i], left, w, *cmult);

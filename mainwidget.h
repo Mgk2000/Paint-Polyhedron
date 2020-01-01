@@ -80,6 +80,7 @@ struct GameStartInfo
     QFile* currGameFile;
 #ifdef WIN32
     bool editor;
+    int fileNo;
 #endif
     bool playMusic;
     bool playSounds;
@@ -96,7 +97,6 @@ public:
     explicit MainWidget(MainWindow *parent, const GameStartInfo & si);
     virtual~MainWidget() override;
     virtual void show();
-    void showEvent(QShowEvent *event);
     QMatrix4x4 projection;
     BitmapText* getBitmapText()  {return & _bitmapText;}
     Buttons* getButtons()  {return  buttons;}
@@ -144,7 +144,6 @@ private:
     QVector3D rotationAxis;
     qreal angularSpeed;
     QQuaternion rotation;
-    QVector3D winFromGl(const QVector3D &v, int w, float scale) const;
     void calcViewports();
     QRect cubeViewport, littleCubeViewport;
     QRect paletteViewport;

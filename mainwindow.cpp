@@ -58,6 +58,7 @@ int MainWindow::indFromNo(int fno) const
     for (int i=0; i< dataFiles.length(); i++)
         if (dataFiles[i].fileNo == fno)
             return i;
+    return -1;
 }
 
 void MainWindow::loadVertexInfo(GameStartInfo * si)
@@ -208,7 +209,7 @@ void MainWindow::getProjectDir()
     QDir dir("shapes");
     if (!dir.exists())
         dir.setPath("../Paint-Polyhedron");
-    bool b = dir.exists();
+//    bool b = dir.exists();
     projectDir = dir.absolutePath();
     qDebug() << "projectDir=" << projectDir;
 }
@@ -244,6 +245,9 @@ void MainWindow::startDataGame(int ind, QString unfinished)
         loadVertexInfo(&si);
     si.playMusic = settings.playMusic;
     si.playSounds = settings.playSounds;
+#ifdef WIN32
+    si.fileNo = dataFiles[ind].fileNo;
+#endif
     if (unfinished != "")
     {
         currGameFile.setFileName(projectDir + "/settings/" +  unfinished);
@@ -297,43 +301,46 @@ void MainWindow::startGame(GameStartInfo& si)
     mainWidget->show();
     qDebug() << "From MainWindow after widget->show";
 }
-
+#ifdef WIN32
+void MainWindow::CheckFilesIntegrity()
+{
+    QDir dir(projectDir + "/shapes");
+    QStringList fnames = dir.entryList(QStringList() << "*.dat" ,QDir::Files);
+    for (int i = 0; i< fnames.length(); i++)
+    {
+        //DataFileInfo dfi;
+        QFile f(dir.path() + '/' + fnames[i]);
+        f.open(QIODevice::ReadOnly);
+        f.seek(sizeof(DataFileInfo));
+        int bsize = f.size() - sizeof(DataFileInfo);
+        char* buf = new char[bsize];
+        f.read(buf, bsize);
+        for (int j=0; j< bsize; j++)
+            if (buf[j] == 0)
+            {
+                qDebug() << QString("File %1 has gray cell j=%2").arg(fnames[i]).arg(j);
+            }
+        delete[] buf;
+    }
+}
 void MainWindow::on_ncellsOkButton_clicked()
 {
- /*DataFileInfo head;
-    for (int i=0; i<10; i++)
-        head.c[i] = 'X';
-    QString sdir("c:/Projects/Qt/Paint Polyhedron/shapes");
-    QDir dir (sdir);
-    if (!dir.exists())
-        return;
-    QStringList fnames = dir.entryList(QStringList() << "*.dat" ,QDir::Files);
-    head.w[0] = head.w[1] = 0;
-    for (int i =0 ; i<fnames.length(); i++)
-    {
-        QFile f (sdir + "/" + fnames[i]);
-        if (!f.exists())
-            return;
-        if (!f.open(QIODevice::ReadWrite))
-            return;
-        f.read(head.buf, f.size());
-        int nc = qSqrt(f.size()/6);
-        head.w[2] = nc;
-        f.seek(0);
-        f.write((char*)&head, f.size()+16);
-    }
-    return;*/
+//    CheckFilesIntegrity();
+//    return;
     GameStartInfo si(ui->ncellsSpinBox->value(), nullptr,true);
     si.type = ui->typeSpinBox->value();
     si.division = ui->divideSpinBox->value();
     si.playMusic = false;
     si.playSounds = false;
+    si.fileNo = 0;
     if (si.type != 0 || si.division !=0)
         loadVertexInfo(&si);
     startGame(si);
     if (si.vertexInfo)
         delete[] si.vertexInfo;
 }
+#endif
+
 bool dataFileLess (const DataFile& df1, const DataFile& df2)
 {
     return df1.size < df2.size;
@@ -411,18 +418,18 @@ bool MainWindow::levelIsDone(int ind) const
             return true;
     return false;
 }
-int DataFilesModel::rowCount(const QModelIndex &parent) const
+int DataFilesModel::rowCount(const QModelIndex &) const
 {
     return (mainWindow->dataFiles.length()  + mainWindow->ncols()-1 )
             / mainWindow->ncols();
 }
 
-int DataFilesModel::columnCount(const QModelIndex &parent) const
+int DataFilesModel::columnCount(const QModelIndex &) const
 {
     return mainWindow->ncols();
 }
 
-QVariant DataFilesModel::data(const QModelIndex &index, int role) const
+QVariant DataFilesModel::data(const QModelIndex &, int/* role*/) const
 {
         return QVariant();
 }
@@ -493,14 +500,13 @@ void ImageDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option,
         pen.setColor(QColor(0,255,0));
         painter->setPen(pen);
         QString s1 = "✔";
-        QRect r =  option.rect;
         int x = option.rect.x();
         int y = option.rect.y() +option.rect.height();
         painter->drawText(x,y,s1);
     }
 }
 
-QSize ImageDelegate::sizeHint(const QStyleOptionViewItem &option, const QModelIndex &index) const
+QSize ImageDelegate::sizeHint(const QStyleOptionViewItem &/*option*/, const QModelIndex &/*index*/) const
 {
     int w = (mainWindow->ui->dataFilesView->width()-20) /mainWindow->ncols();
     return QSize(w,w);

@@ -11,6 +11,7 @@ Tetrahedron::Tetrahedron(MainWidget *mw) : Polyhedron(mw)
     }
 
     radius = 1.0;
+#ifdef WIN32
     vertices.append(Vertex(1,1,1));
     vertices.append(Vertex(-1,-1,1));
     vertices.append(Vertex(-1,1,-1));
@@ -22,7 +23,7 @@ Tetrahedron::Tetrahedron(MainWidget *mw) : Polyhedron(mw)
     setDivision(mainWidget->gameStartInfo.division);
     saveVertexInfo();
     vertexData = new CubeVertexData[faces.length()* 3];
-
+#endif
 }
 
 LittleTetrahedron::LittleTetrahedron(Tetrahedron *bigTet) : LittlePolyhedron(bigTet)

@@ -11,6 +11,7 @@ Cuboid::Cuboid(MainWidget * mw, bool div3): Polyhedron (mw)
         vertexData = new CubeVertexData[faces.length()* 3];
         return;
     }
+#ifdef WIN32
     radius = 1.0f;
     float r3 = qSqrt(3.0);
     vertices.append(Vertex(-1 ,-1,-1)); //0
@@ -42,6 +43,7 @@ Cuboid::Cuboid(MainWidget * mw, bool div3): Polyhedron (mw)
     setDivision(div);
     saveVertexInfo();
     vertexData = new CubeVertexData[faces.length()* 3];
+#endif
 }
 
 LittleCuboid::LittleCuboid(Cuboid *bigCuboid) : LittlePolyhedron(bigCuboid)
