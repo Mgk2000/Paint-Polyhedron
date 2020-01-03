@@ -227,5 +227,19 @@
         <file>shapes/109.png</file>
         <file>shapes/110.dat</file>
         <file>shapes/110.png</file>
+        <file>shapes/111.dat</file>
+        <file>shapes/111.png</file>
+        <file>shapes/112.dat</file>
+        <file>shapes/112.png</file>
+        <file>shapes/113.dat</file>
+        <file>shapes/113.png</file>
+        <file>shapes/114.dat</file>
+        <file>shapes/114.png</file>
+        <file>shapes/115.dat</file>
+        <file>shapes/115.png</file>
+        <file>shapes/116.dat</file>
+        <file>shapes/116.png</file>
+        <file>shapes/117.dat</file>
+        <file>shapes/117.png</file>
     </qresource>
 </RCC>
