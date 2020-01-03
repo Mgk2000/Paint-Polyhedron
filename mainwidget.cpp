@@ -133,9 +133,9 @@ void MainWidget::show()
 
 void MainWidget::prepareSounds()
 {
-   soundEffect.addSound("bad.wav", 1.0f);
-   soundEffect.addSound("good.wav", 0.5f);
-   soundEffect.addSound("Victory.wav", 1.0f);
+   soundEffect.addSound("bad.wav", 0.5f);
+   soundEffect.addSound("good.wav", 0.2f);
+   soundEffect.addSound("Victory.wav", 0.3f);
    music.addSound("wag.wav", 1.0, true);
 }
 
@@ -282,6 +282,7 @@ void MainWidget::startGame()
     {
         littleFigure->setData(gameStartInfo.data);
 #ifdef WIN32
+        copySymmetry = false;
         if (gameStartInfo.editor)
             figure->setData(gameStartInfo.data);
         else
@@ -294,6 +295,9 @@ void MainWidget::startGame()
         //delete[] gameStartInfo.data;
     }
     minAngularSpeed = nTotalColors < 800 ? 0.5 : 0.2;
+#ifdef WIN32
+    minAngularSpeed = minAngularSpeed *0.5;
+#endif
     nValidColors = figure->validColorsCount(littleFigure);
     //checkValidColors(2);
     _palette->fillData();

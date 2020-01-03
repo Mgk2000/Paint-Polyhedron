@@ -92,6 +92,8 @@ void MainWidget::keyPressEvent(QKeyEvent *event)
         {figure->getCubicAreas(); break;}
         case  16777272:   //F9
             minAngularSpeed = 0; break;
+        case  16777273:   //10
+            copySymmetry = !copySymmetry; break;
         case 16777313 : // android back button
         {
         hide();

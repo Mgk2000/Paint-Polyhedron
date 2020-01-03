@@ -466,9 +466,10 @@ int Polyhedron::pick(float mx, float my, int icolor)
                  }
                  int nearInd = facez[0] < facez[1] ? 0 : 1;
 #ifdef WIN32
-                 int indf = pickFaces[nearInd];
-                 for(int ii = 0; ii<3; ii++)
-                     qDebug() << vertices[faces[indf].vertices[ii]].vertex;
+                 qDebug() << "nf=" << pickFaces[nearInd];
+//                 int indf = pickFaces[nearInd];
+//                 for(int ii = 0; ii<3; ii++)
+//                     qDebug() << vertices[faces[indf].vertices[ii]].vertex;
 #endif
 //                 int farInd = 1- nearInd;
                  ret = pick (pickFaces[nearInd], icolor);
@@ -510,6 +511,19 @@ int Polyhedron::pick(int nf, int iColor)
     selIndex = nf  * 3;
     if (iColor != oldColor)
       needsCellDraw = true;
+#ifdef WIN32
+    if (mainWidget->copySymmetry)
+    {
+        if (faces.length() % 8 == 0)
+        {
+            int f8 = faces.length() /8;
+            for (int i =0; i< 8; i++)
+                setFaceColor((i*f8 + nf) % faces.length(),iColor);
+        }
+        needsFullDraw = true;
+
+    }
+#endif
     return ret;
 }
 void Polyhedron::saveMove(int iface, uchar colorInd)

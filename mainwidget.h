@@ -103,6 +103,8 @@ public:
     GameStartInfo gameStartInfo;
 #ifdef WIN32
     bool isEditMode() const {return gameStartInfo.editor;}
+    bool copySymmetry;
+
 #endif
     void startGame();
     void sound(int is);

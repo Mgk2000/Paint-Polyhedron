@@ -241,6 +241,11 @@ void MainWindow::startDataGame(int ind, QString unfinished)
     GameStartInfo si(head.ncells, (uchar*)buf, ui->editorCheckBox->isChecked());
     si.type = head.type;
     si.division = head.division;
+#ifdef WIN32
+    ui->typeSpinBox->setValue(si.type);
+    ui->divideSpinBox->setValue(si.division);
+    ui->ncellsSpinBox->setValue(si.ncells);
+#endif
     if (si.type !=0 || si.division != 0)
         loadVertexInfo(&si);
     si.playMusic = settings.playMusic;
