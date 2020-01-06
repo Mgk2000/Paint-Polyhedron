@@ -135,8 +135,8 @@ void MainWidget::prepareSounds()
 {
    soundEffect.addSound("bad.wav", 0.5f);
    soundEffect.addSound("good.wav", 0.2f);
-   soundEffect.addSound("Victory.wav", 0.3f);
-   music.addSound("wag.wav", 1.0, true);
+   soundEffect.addSound("Victory.wav", 0.2f);
+   music.addSound("wag.wav", 0.3, true);
 }
 
 void MainWidget::playMusicChanged()
