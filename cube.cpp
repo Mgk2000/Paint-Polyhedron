@@ -340,7 +340,14 @@ int Cube::notGrayColorsCount() const
                     vc ++;
     return vc;
 }
-
+#ifdef WIN32
+void Cube::clear()
+{
+    for(int i =0; i<6; i++)
+        fillFace(i,0);
+    needsFullDraw = true;
+}
+#endif
 void Cube::saveMove(int face, int row, int col, uchar colorInd)
 {
 #ifdef WIN32

@@ -18,6 +18,7 @@ public:
 #ifdef WIN32
     virtual bool isCube() const {return false;}
     virtual void getCubicAreas() {}
+    virtual void clear() {};
 #endif
     bool needsCellDraw;
     bool needsFullDraw;

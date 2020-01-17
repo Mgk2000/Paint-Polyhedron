@@ -11,6 +11,11 @@
         <file>staticFshader.glsl</file>
         <file>colorVshader.glsl</file>
         <file>images/cube512.png</file>
+        <file>sounds/bad.wav</file>
+        <file>sounds/good.wav</file>
+        <file>sounds/Victory.wav</file>
+        <file>sounds/wag.wav</file>
+        <file>colorFshader.glsl</file>
         <file>settings/0_1.vert</file>
         <file>settings/0_2.vert</file>
         <file>settings/0_3.vert</file>

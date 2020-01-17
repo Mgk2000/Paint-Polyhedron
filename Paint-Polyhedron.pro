@@ -45,8 +45,11 @@ HEADERS += \
     tetrahedron.h
 
 RESOURCES += \
-    shaders.qrc \
-    textures.qrc
+    shaders.qrc
+android{
+RESOURCES += \
+    shapes.qrc
+}
 
 # install
 target.path = $$[QT_INSTALL_EXAMPLES]/opengl/cube

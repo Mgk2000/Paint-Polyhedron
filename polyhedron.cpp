@@ -294,7 +294,14 @@ void PolyhedronBase::setNcells(int)
 {
 
 }
-
+#ifdef WIN32
+void PolyhedronBase::clear()
+{
+    for (int i=0; i< faces.count() ; i++)
+        faces[i].color=0;
+    needsFullDraw = true;
+}
+#endif
 int PolyhedronBase::nElements() const
 {
     return faces.count() * 3;

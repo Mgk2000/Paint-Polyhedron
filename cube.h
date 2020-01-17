@@ -71,6 +71,7 @@ public:
     int notGrayColorsCount() const override;
 #ifdef WIN32
     bool isCube() const override {return true;}
+    void clear() override;
 #endif
 protected:
 private:

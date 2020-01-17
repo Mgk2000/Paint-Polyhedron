@@ -56,6 +56,7 @@ protected:
     QList <Vertex> vertices;
 #ifdef WIN32
     QList <Edge> edges;
+    void clear() override;
 #endif
     QList <_Face> faces;
     int nElements() const;

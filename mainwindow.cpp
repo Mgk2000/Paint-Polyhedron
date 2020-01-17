@@ -7,6 +7,11 @@
 #include <QMessageBox>
 #include <QPainter>
 #include <QScroller>
+
+#include <QByteArray>
+#include <QNetworkAccessManager>
+#include <QNetworkRequest>
+#include <QNetworkReply>
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow), mainWidget(nullptr), _ncols(5)
@@ -14,6 +19,7 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->setupUi(this);
     getProjectDir();
     getDataFiles();
+    downloadNewFiles();
     readSettings();
 #ifndef WIN32
     ui->editWidget->hide();
@@ -205,13 +211,19 @@ QString MainWindow::getUnfinishedGame()
 }
 void MainWindow::getProjectDir()
 {
-    QString exedir = QDir(".").absolutePath();
+//    QString exedir = QDir(".").absolutePath();
     QDir dir("shapes");
     if (!dir.exists())
         dir.setPath("../Paint-Polyhedron");
 //    bool b = dir.exists();
     projectDir = dir.absolutePath();
     qDebug() << "projectDir=" << projectDir;
+    shapesDir = projectDir + "/shapes";
+    dir.setPath(shapesDir);
+    if (!dir.exists())
+         dir.mkpath(".");
+//    bool b = dir.exists();
+
 }
 
 void MainWindow::levelDone()
@@ -230,7 +242,16 @@ void MainWindow::levelDone()
 
 void MainWindow::startDataGame(int ind, QString unfinished)
 {
-    QString fn = dir.path() + '/' + QString("%1.dat").arg(dataFiles[ind].fileNo);
+    QString sdir;
+#ifdef WIN32
+    sdir = dir.path();
+#else
+    if (dataFiles[ind].resource)
+        sdir = dir.path();
+    else
+        sdir = shapesDir;
+#endif
+    QString fn =  sdir + '/' + QString("%1.dat").arg(dataFiles[ind].fileNo);
     QFile f (fn);
     f.open(QIODevice::ReadOnly);
     DataFileInfo head;
@@ -372,23 +393,50 @@ void MainWindow::getDataFiles()
         return;
     }
     maxLevel = 3;
+    maxFileNo = -1;
     QStringList fnames = dir.entryList(QStringList() << "*.dat" ,QDir::Files);
     for (int i=0; i< fnames.length(); i++)
     {
         DataFile df;
+#ifndef WIN32
+        df.resource = true;
+#else
+        df.resource = false;
+#endif
         df.fileNo = fileNameToNo (fnames[i]);
+        if (df.fileNo > maxFileNo)
+            maxFileNo = df.fileNo;
         QFileInfo f (dir.path() + '/' + fnames[i]);
         df.size = f.size();
         dataFiles.append(df);
         if (df.ncells() > maxLevel)
             maxLevel = df.ncells();
     }
+#ifndef WIN32
+    QDir shdir(shapesDir);
+    QStringList shfnames =  shdir.entryList(QStringList() << "*.dat" ,QDir::Files);
+    for (int i=0; i< shfnames.length(); i++)
+    {
+        DataFile df;
+        df.resource = false;
+        df.fileNo = fileNameToNo (shfnames[i]);
+        if (df.fileNo > maxFileNo)
+            maxFileNo = df.fileNo;
+        QFileInfo f (shdir.path() + '/' + shfnames[i]);
+        df.size = f.size();
+        dataFiles.append(df);
+        if (df.ncells() > maxLevel)
+            maxLevel = df.ncells();
+    }
+#endif
+
     std::sort(dataFiles.begin(), dataFiles.end(), dataFileLess);
 }
 
 void MainWindow::getCurrMaxLevel()
 {
-    currMaxLevel = 3;
+    currMaxLevel = 33;
+    return;
     for (int i =0; i< settings.doneInds.length(); i++)
     {
         int nc = dataFiles[settings.doneInds[i]].ncells();
@@ -423,6 +471,74 @@ bool MainWindow::levelIsDone(int ind) const
             return true;
     return false;
 }
+
+void MainWindow::downloadNewFiles()
+{
+    QNetworkAccessManager manager;
+    bool newfile = false;
+    for (int fno = maxFileNo+1; fno<100000000; fno++)
+        if (!downloadShape(&manager, fno))
+                break;
+    else
+         newfile = true;
+    if (newfile)
+         std::sort(dataFiles.begin(), dataFiles.end(), dataFileLess);
+}
+bool MainWindow::downloadShape(QNetworkAccessManager *manager, int fno)
+{
+    const QString shapesURL = "http://games-mgk.h1n.ru/polyhedron/";
+    QString datUrl(QString(shapesURL + "%1.dat").arg(fno));
+    QNetworkReply *reply = manager->get(QNetworkRequest(QUrl(datUrl)));
+    QEventLoop loop;
+    connect(reply, SIGNAL(finished()), &loop, SLOT(quit()));
+    connect(reply, SIGNAL(error(QNetworkReply::NetworkError)), &loop, SLOT(quit()));
+    loop.exec();
+    qDebug() << reply->error();
+    if (reply->error() != QNetworkReply::NoError)
+    {
+        delete reply;
+        return false;
+    }
+    QByteArray bts = reply->readAll();
+    delete reply;
+
+    QString pngUrl(QString(shapesURL + "%1.png").arg(fno));
+    reply = manager->get(QNetworkRequest(QUrl(pngUrl)));
+//    QEventLoop loop;
+    connect(reply, SIGNAL(finished()), &loop, SLOT(quit()));
+    connect(reply, SIGNAL(error(QNetworkReply::NetworkError)), &loop, SLOT(quit()));
+    loop.exec();
+    qDebug() << reply->error();
+    if (reply->error() != QNetworkReply::NoError)
+    {
+        delete reply;
+        return false;
+    }
+    QByteArray pngbts = reply->readAll();
+    maxFileNo = fno;
+    QFile dataf(QString(shapesDir + "/%1.dat").arg(fno));
+    dataf.open(QIODevice::WriteOnly);
+    dataf.write(bts);
+    QFile pf(QString(shapesDir + "/%1.png").arg(fno));
+    pf.open(QIODevice::WriteOnly);
+    pf.write(pngbts);
+    ////
+
+    DataFile df;
+    df.resource = false;
+    df.fileNo = fno;
+    if (df.fileNo > maxFileNo)
+        maxFileNo = df.fileNo;
+    df.size = dataf.size();
+    dataFiles.append(df);
+    if (df.ncells() > maxLevel)
+        maxLevel = df.ncells();
+    ////
+
+    delete reply;
+    return true;
+
+}
 int DataFilesModel::rowCount(const QModelIndex &) const
 {
     return (mainWindow->dataFiles.length()  + mainWindow->ncols()-1 )
@@ -441,6 +557,7 @@ QVariant DataFilesModel::data(const QModelIndex &, int/* role*/) const
 
 void MainWindow::on_dataFilesView_clicked(const QModelIndex &index)
 {
+//    downloadNewFiles();
    int ind = index.row()* _ncols + index.column();
    if (ind >= dataFiles.length())
        return ;
@@ -482,7 +599,10 @@ void ImageDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option,
     pixelSize = 24;
     lockSize =32;
 #else
-    s = ":shapes/" +s;
+    if (mainWindow->dataFiles[ind].resource)
+        s = ":shapes/" +s;
+    else
+        s = mainWindow->shapesDir + "/" + s;
     pixelSize = 72;
     lockSize = 64;
 #endif
@@ -515,4 +635,34 @@ QSize ImageDelegate::sizeHint(const QStyleOptionViewItem &/*option*/, const QMod
 {
     int w = (mainWindow->ui->dataFilesView->width()-20) /mainWindow->ncols();
     return QSize(w,w);
+}
+#ifdef WIN32
+void MainWindow::on_serviceButton_clicked()
+{
+    QString ssaveDir = "c:/Projects/Qt/SaveShapes";
+    QString sshapesDir = "c:/Projects/Qt/Paint-Polyhedron/shapes";
+    QDir shapesDir(sshapesDir);
+    QStringList fnames = shapesDir.entryList(QStringList() << "*.dat" ,QDir::Files);
+    for (int i=0; i< fnames.length(); i++)
+    {
+        QString s1 = sshapesDir + '/' + fnames[i];
+        QString s2 = ssaveDir + '/' + fnames[i];
+        if (QFileInfo(s2).exists())
+        {
+            shapesDir.remove(fnames[i]);
+            QString spng = fnames[i].chopped(3) + "png";
+            shapesDir.remove(spng);
+        }
+    }
+}
+#endif
+void MainWindow::networkFinished()
+{
+    qDebug() << "networkFinished";
+}
+
+void MainWindow::networkError()
+{
+    qDebug() << "networkError";
+
 }

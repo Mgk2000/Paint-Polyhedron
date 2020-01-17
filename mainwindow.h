@@ -26,6 +26,7 @@ struct DataFile
     int fileNo;
     int size;
     int ncells() const {return (int)qSqrt((size-16)/6);}
+    bool resource;
 };
 
 class DataFilesModel : public QAbstractTableModel
@@ -54,6 +55,7 @@ struct Settings
     QList <int> doneLevels;
     QList <int> doneInds;
 };
+class QNetworkAccessManager;
 class MainWindow : public QMainWindow
 {
     Q_OBJECT
@@ -74,16 +76,22 @@ public:
     QString getUnfinishedGame();
     QFile currGameFile;
     Settings settings;
-    QString projectDir;
+    QString projectDir, shapesDir;
     void getProjectDir();
     void levelDone();
     bool levelIsLocked(int i) const;
     bool levelIsDone(int i) const;
+    void downloadNewFiles();
+    bool downloadShape(QNetworkAccessManager* netmanager, int fno);
 private slots:
 #ifdef WIN32
     void on_ncellsOkButton_clicked();
+    void on_serviceButton_clicked();
 #endif
+    void networkFinished();
+    void networkError();
     void on_dataFilesView_clicked(const QModelIndex &index);
+
 
 private:
     void getDataFiles();
@@ -94,6 +102,7 @@ private:
     int currInd;
     void getCurrMaxLevel();
     int maxLevel, currMaxLevel;
+    int maxFileNo;
     int indFromNo(int fno) const;
     void loadVertexInfo(GameStartInfo*);
 #ifdef WIN32

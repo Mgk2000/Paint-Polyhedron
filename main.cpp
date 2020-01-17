@@ -70,6 +70,8 @@ int main(int argc, char *argv[])
     MainWindow mainWin;
     mainWin.connect (&app, SIGNAL(applicationStateChanged(Qt::ApplicationState )), &mainWin,
              SLOT(applicationStateChanged(Qt::ApplicationState )));
+//    mainWin.downloadNewFiles();
+
     bool b = mainWin.startUnfinishedGame();
 //    if (!b)
 #ifdef WIN32
