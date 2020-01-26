@@ -393,7 +393,7 @@ void MainWindow::getDataFiles()
         return;
     }
     maxLevel = 3;
-    maxFileNo = -1;
+    maxFileNo = 0;
     QStringList fnames = dir.entryList(QStringList() << "*.dat" ,QDir::Files);
     for (int i=0; i< fnames.length(); i++)
     {
